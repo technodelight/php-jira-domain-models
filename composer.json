@@ -1,0 +1,13 @@
+{
+    "name": "technodelight/php-jira-domain-models",
+    "description": "Domain models for Jira entities",
+    "type": "library",
+    "license": "GPLv3",
+    "authors": [
+        {
+            "name": "Zenc",
+            "email": "zenc@zenc.hu"
+        }
+    ],
+    "require": {}
+}
