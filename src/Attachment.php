@@ -2,7 +2,7 @@
 
 namespace Technodelight\Jira\Domain;
 
-use Technodelight\Jira\Helper\DateHelper;
+use DateTime;
 
 class Attachment
 {
@@ -46,11 +46,11 @@ class Attachment
     }
 
     /**
-     * @return \DateTime
+     * @return DateTime
      */
     public function created()
     {
-        return \DateTime::createFromFormat(DateHelper::FORMAT_FROM_JIRA, $this->attachment['created']);
+        return DateTime::createFromFormat(DateFormat::FORMAT, $this->attachment['created']);
     }
 
     /**

@@ -2,9 +2,9 @@
 
 namespace Technodelight\Jira\Domain;
 
+use DateTime;
 use Technodelight\Jira\Domain\Issue\IssueKey;
 use Technodelight\Jira\Domain\Issue\IssueType;
-use Technodelight\Jira\Helper\DateHelper;
 
 class Issue
 {
@@ -110,7 +110,7 @@ class Issue
 
     public function created()
     {
-        return \DateTime::createFromFormat(DateHelper::FORMAT_FROM_JIRA, $this->findField('created'));
+        return DateTime::createFromFormat(DateFormat::FORMAT, $this->findField('created'));
     }
 
     public function status()

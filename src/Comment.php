@@ -2,8 +2,8 @@
 
 namespace Technodelight\Jira\Domain;
 
+use DateTime;
 use Technodelight\Jira\Domain\Comment\CommentId;
-use Technodelight\Jira\Helper\DateHelper;
 
 class Comment
 {
@@ -55,12 +55,12 @@ class Comment
 
     public function created()
     {
-        return \DateTime::createFromFormat(DateHelper::FORMAT_FROM_JIRA, $this->created);
+        return DateTime::createFromFormat(DateFormat::FORMAT, $this->created);
     }
 
     public function updated()
     {
-        return \DateTime::createFromFormat(DateHelper::FORMAT_FROM_JIRA, $this->updated);
+        return DateTime::createFromFormat(DateFormat::FORMAT, $this->updated);
     }
 
     public function __toString()

@@ -6,7 +6,6 @@ use DateTime;
 use Technodelight\Jira\Domain\Issue\IssueKey;
 use Technodelight\Jira\Domain\Issue\IssueId;
 use Technodelight\Jira\Domain\Worklog\WorklogId;
-use Technodelight\Jira\Helper\DateHelper;
 use Technodelight\SecondsToNone;
 
 class Worklog
@@ -59,7 +58,7 @@ class Worklog
             $this->author = $author;
         }
         $this->comment = $comment;
-        $this->date = DateTime::createFromFormat(DateHelper::FORMAT_FROM_JIRA, $date);
+        $this->date = DateTime::createFromFormat(DateFormat::FORMAT, $date);
         $this->timeSpentSeconds = $timeSpentSeconds;
     }
 
@@ -161,7 +160,7 @@ class Worklog
     public function date($date = null)
     {
         if ($date) {
-            $this->date = $date instanceof DateTime ? $date : DateTime::createFromFormat(DateHelper::FORMAT_FROM_JIRA, $date);
+            $this->date = $date instanceof DateTime ? $date : DateTime::createFromFormat(DateFormat::FORMAT, $date);
         }
 
         return $this->date;
