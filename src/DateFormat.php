@@ -4,5 +4,5 @@ namespace Technodelight\Jira\Domain;
 
 class DateFormat
 {
-    const FORMAT = DateFormat::FORMAT;
+    const FORMAT = 'Y-m-d\TH:i:s.000O';
 }
