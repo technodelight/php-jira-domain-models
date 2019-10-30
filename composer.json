@@ -14,5 +14,10 @@
             "Technodelight\\Jira\\Domain\\": "src/"
         }
     },
-    "require": {}
+    "config": {
+        "bin-dir": "bin"
+    },
+    "require": {
+        "phpspec/phpspec": "2.5"
+    }
 }
