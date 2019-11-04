@@ -19,5 +19,14 @@
     },
     "require": {
         "phpspec/phpspec": "2.5"
+    },
+    "scripts": {
+        "test": [
+            "@test-unit",
+            "@test-acceptance"
+        ],
+        "test-unit": [
+            "bin/phpspec --ansi run -fpretty"
+        ]
     }
 }

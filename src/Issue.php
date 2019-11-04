@@ -110,7 +110,7 @@ class Issue
 
     public function created()
     {
-        return DateTime::createFromFormat(DateFormat::FORMAT, $this->findField('created'));
+        return DateTimeFactory::fromString($this->findField('created'));
     }
 
     public function status()
