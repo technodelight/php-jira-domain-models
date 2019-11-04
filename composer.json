@@ -17,7 +17,7 @@
     "config": {
         "bin-dir": "bin"
     },
-    "require": {
+    "require-dev": {
         "phpspec/phpspec": "2.5"
     },
     "scripts": {
