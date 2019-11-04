@@ -4,6 +4,7 @@ namespace Technodelight\Jira\Domain\Issue;
 
 use DateTime;
 use Technodelight\Jira\Domain\DateFormat;
+use Technodelight\Jira\Domain\DateTimeFactory;
 use Technodelight\Jira\Domain\Issue\Changelog\Item;
 use Technodelight\Jira\Domain\User;
 
@@ -63,7 +64,7 @@ class Changelog
      */
     public function created()
     {
-        return DateTime::createFromFormat(DateFormat::FORMAT, $this->created);
+        return DateTimeFactory::fromString($this->created);
     }
 
     /**

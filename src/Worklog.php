@@ -58,7 +58,7 @@ class Worklog
             $this->author = $author;
         }
         $this->comment = $comment;
-        $this->date = DateTime::createFromFormat(DateFormat::FORMAT, $date);
+        $this->date = DateTime::createFromFormat(DateFormat::DEFAULT_FORMAT, $date);
         $this->timeSpentSeconds = $timeSpentSeconds;
     }
 
@@ -160,7 +160,7 @@ class Worklog
     public function date($date = null)
     {
         if ($date) {
-            $this->date = $date instanceof DateTime ? $date : DateTime::createFromFormat(DateFormat::FORMAT, $date);
+            $this->date = $date instanceof DateTime ? $date : DateTime::createFromFormat(DateFormat::DEFAULT_FORMAT, $date);
         }
 
         return $this->date;
@@ -177,6 +177,7 @@ class Worklog
             $this->timeSpentSeconds = (new SecondsToNone())->humanToSeconds($timeSpent);
             return $this;
         }
+
         return (new SecondsToNone)->secondsToHuman($this->timeSpentSeconds);
     }
 
@@ -189,6 +190,7 @@ class Worklog
         if (!is_null($seconds)) {
             $this->timeSpentSeconds = $seconds;
         }
+
         return $this->timeSpentSeconds;
     }
 

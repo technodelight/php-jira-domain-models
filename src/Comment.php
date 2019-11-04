@@ -55,12 +55,12 @@ class Comment
 
     public function created()
     {
-        return DateTime::createFromFormat(DateFormat::FORMAT, $this->created);
+        return DateTimeFactory::fromString($this->created);
     }
 
     public function updated()
     {
-        return DateTime::createFromFormat(DateFormat::FORMAT, $this->updated);
+        return DateTimeFactory::fromString($this->updated);
     }
 
     public function __toString()

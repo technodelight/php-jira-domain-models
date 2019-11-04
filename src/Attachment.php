@@ -50,7 +50,7 @@ class Attachment
      */
     public function created()
     {
-        return DateTime::createFromFormat(DateFormat::FORMAT, $this->attachment['created']);
+        return DateTimeFactory::fromString($this->attachment['created']);
     }
 
     /**
