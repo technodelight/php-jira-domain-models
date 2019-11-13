@@ -58,7 +58,7 @@ class Worklog
             $this->author = $author;
         }
         $this->comment = $comment;
-        $this->date = DateTime::createFromFormat(DateFormat::DEFAULT_FORMAT, $date);
+        $this->date = DateTimeFactory::fromString($date);
         $this->timeSpentSeconds = $timeSpentSeconds;
     }
 
@@ -160,7 +160,7 @@ class Worklog
     public function date($date = null)
     {
         if ($date) {
-            $this->date = $date instanceof DateTime ? $date : DateTime::createFromFormat(DateFormat::DEFAULT_FORMAT, $date);
+            $this->date = $date instanceof DateTime ? $date : DateTimeFactory::fromString($date);
         }
 
         return $this->date;
