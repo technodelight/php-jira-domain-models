@@ -10,14 +10,15 @@ class User
     {
         $user = new self;
         $user->id = $array['accountId'];
-        $user->key = $array['key'];
-        $user->name = $array['name'];
+        $user->key = isset($array['key']) ? $array['key'] : '';
+        $user->name = isset($array['name']) ? $array['name'] : '';
         $user->emailAddress = isset($array['emailAddress']) ? $array['emailAddress'] : '';
         $user->avatarUrls = isset($array['avatarUrls']) ? $array['avatarUrls'] : [];
         $user->displayName = $array['displayName'];
         $user->active = isset($array['active']) ? $array['active'] : true;
         $user->timeZone = isset($array['timeZone']) ? $array['timeZone'] : '';
         $user->locale = isset($array['locale']) ? $array['locale'] : null;
+        
         return $user;
     }
 
