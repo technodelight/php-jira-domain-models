@@ -3,11 +3,12 @@
 namespace Technodelight\Jira\Domain\Issue;
 
 use Technodelight\Jira\Domain\Exception\MissingIssueKeyException;
-use Technodelight\Jira\Domain\ProjectKey;
+use Technodelight\Jira\Domain\Project\ProjectKey;
 
 class IssueKey
 {
-    const ISSUE_PATTERN = '~^[A-Z0-9]+-[0-9]+$~';
+    const REGEX = '~^[A-Z0-9]+-[0-9]+$~';
+    const PATTERN = '[A-Z0-9]+-[0-9]+';
 
     private $issueKey;
     private $issueId;
@@ -15,7 +16,7 @@ class IssueKey
 
     private function __construct($issueKey)
     {
-        if (!preg_match(self::ISSUE_PATTERN, $issueKey)) {
+        if (!preg_match(self::REGEX, $issueKey)) {
             throw new MissingIssueKeyException;
         }
         $this->issueKey = $issueKey;

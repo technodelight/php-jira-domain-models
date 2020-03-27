@@ -18,7 +18,7 @@ class User
         $user->active = isset($array['active']) ? $array['active'] : true;
         $user->timeZone = isset($array['timeZone']) ? $array['timeZone'] : '';
         $user->locale = isset($array['locale']) ? $array['locale'] : null;
-        
+
         return $user;
     }
 
