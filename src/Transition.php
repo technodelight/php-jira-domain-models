@@ -4,60 +4,46 @@ namespace Technodelight\Jira\Domain;
 
 class Transition
 {
-    private $id;
-    private $name;
-    private $resolvesToId;
-    private $resolvesToName;
-    private $resolvesToDescription;
+    private function __construct(
+        private readonly int $id,
+        private readonly string $name,
+        private readonly int $resolvesToId,
+        private readonly string $resolvesToName,
+        private readonly string $resolvesToDescription,
+    ) {}
 
-    public static function fromArray(array $transition)
+    public static function fromArray(array $transition): Transition
     {
-        $instance = new self;
-        $instance->id = $transition['id'];
-        $instance->name = $transition['name'];
-        $instance->resolvesToId = $transition['to']['id'];
-        $instance->resolvesToName = $transition['to']['name'];
-        $instance->resolvesToDescription = $transition['to']['description'];
-
-        return $instance;
+        return new self(
+            (int) $transition['id'],
+            $transition['name'],
+            (int)$transition['to']['id'],
+            $transition['to']['name'],
+            $transition['to']['description']
+        );
     }
 
-    /**
-     * @return int
-     */
-    public function id()
+    public function id(): int
     {
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
-    public function name()
+    public function name(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return int
-     */
-    public function resolvesToId()
+    public function resolvesToId(): int
     {
         return $this->resolvesToId;
     }
 
-    /**
-     * @return string
-     */
-    public function resolvesToName()
+    public function resolvesToName(): string
     {
         return $this->resolvesToName;
     }
 
-    /**
-     * @return string
-     */
-    public function resolvesToDescription()
+    public function resolvesToDescription(): string
     {
         return $this->resolvesToDescription;
     }
@@ -65,9 +51,5 @@ class Transition
     public function __toString()
     {
         return $this->name();
-    }
-
-    private function __construct()
-    {
     }
 }

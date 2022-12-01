@@ -7,37 +7,40 @@ use Technodelight\Jira\Domain\Project\ProjectKey;
 
 class IssueKey
 {
-    const REGEX = '~^[A-Z0-9]+-[0-9]+$~';
-    const PATTERN = '[A-Z0-9]+-[0-9]+';
+    public const PATTERN = '[A-Z0-9]+-[0-9]+';
 
-    private $issueKey;
-    private $issueId;
-    private $projectKey;
+    private readonly string $projectKey;
+    private readonly int $sequenceNumber;
 
-    private function __construct($issueKey)
+    private function __construct(private readonly string $issueKey)
     {
-        if (!preg_match(self::REGEX, $issueKey)) {
+        if (!preg_match('~^'.self::PATTERN.'$~', $issueKey)) {
             throw new MissingIssueKeyException;
         }
-        $this->issueKey = $issueKey;
-        list ($projectKey, $issueId) = explode('-', $issueKey, 2);
+
+        [$projectKey, $sequenceNumber] = explode('-', $issueKey, 2);
         $this->projectKey = $projectKey;
-        $this->issueId = $issueId;
+        $this->sequenceNumber = (int)$sequenceNumber;
     }
 
-    public static function fromString($issueKey)
+    public static function fromString($issueKey): IssueKey
     {
-        return new IssueKey($issueKey);
+        return new self($issueKey);
     }
 
-    public function projectKey()
+    public function projectKey(): ProjectKey
     {
         return ProjectKey::fromString($this->projectKey);
     }
 
-    public function issueId()
+    public function issueKey(): string
     {
-        return $this->issueId;
+        return $this->issueKey;
+    }
+
+    public function sequenceNumber(): int
+    {
+        return $this->sequenceNumber;
     }
 
     public function __toString()

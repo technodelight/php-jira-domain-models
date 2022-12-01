@@ -7,16 +7,11 @@ use RuntimeException;
 
 class DateTimeFactory
 {
-    private static $supportedFormats = [DateFormat::DEFAULT_FORMAT, DateFormat::MICROTIME_FORMAT];
+    private const SUPPORTED_FORMATS = [DateFormat::DEFAULT_FORMAT, DateFormat::MICROTIME_FORMAT];
 
-    /**
-     * @param string $dateString
-     * @return DateTime
-     * @throws RuntimeException
-     */
-    public static function fromString($dateString)
+    public static function fromString(string $dateString): DateTime
     {
-        foreach (self::$supportedFormats as $format) {
+        foreach (self::SUPPORTED_FORMATS as $format) {
             $dateTime = DateTime::createFromFormat($format, $dateString);
             if ($dateTime !== false) {
                 return $dateTime;

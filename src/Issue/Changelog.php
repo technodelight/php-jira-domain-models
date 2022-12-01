@@ -6,82 +6,57 @@ use DateTime;
 use Technodelight\Jira\Domain\DateFormat;
 use Technodelight\Jira\Domain\DateTimeFactory;
 use Technodelight\Jira\Domain\Issue\Changelog\Item;
+use Technodelight\Jira\Domain\NumericId;
 use Technodelight\Jira\Domain\User;
 
 class Changelog
 {
-    /**
-     * @var int
-     */
-    private $id;
-    /**
-     * @var string
-     */
-    private $issueKey;
-    /**
-     * @var string
-     */
-    private $created;
-    /**
-     * @var array
-     */
-    private $author;
-    /**
-     * @var array
-     */
-    private $items = [];
+    private function __construct(
+        private readonly int $id,
+        private readonly string $issueKey,
+        private readonly string $created,
+        private readonly ?array $author,
+        private readonly array $items
+    ) {}
 
-    public static function fromArray(array $changeLog, $issueKey)
+    public static function fromArray(array $changeLog, $issueKey): Changelog
     {
-        $instance = new self;
-        $instance->id = $changeLog['id'];
-        $instance->issueKey = $issueKey;
-        $instance->created = $changeLog['created'];
-        $instance->author = $changeLog['author'];
-        $instance->items = isset($changeLog['items']) ? $changeLog['items'] : [];
-
-        return $instance;
+        return new self(
+            (int)$changeLog['id'],
+            (string)$issueKey,
+            $changeLog['created'],
+            $changeLog['author'] ?? null,
+            $changeLog['items'] ?? []
+        );
     }
 
-    /**
-     * @return int
-     */
-    public function id()
+    public function id(): NumericId
     {
-        return $this->id;
+        return NumericId::fromNumeric($this->id);
     }
 
-    /**
-     * @return string
-     */
-    public function issueKey()
+    public function issueKey(): IssueKey
     {
-        return $this->issueKey;
+        return IssueKey::fromString($this->issueKey);
     }
 
-    /**
-     * @return DateTime
-     */
-    public function created()
+    public function created(): DateTime
     {
         return DateTimeFactory::fromString($this->created);
     }
 
-    /**
-     * @return User
-     */
-    public function author()
+    public function author(): ?User
     {
-        return User::fromArray($this->author);
+        if ($this->author) {
+            return User::fromArray($this->author);
+        }
+
+        return null;
     }
 
-    /**
-     * @return Item[]
-     */
-    public function items()
+    /** @return Item[] */
+    public function items(): array
     {
-        return array_map(function ($item) {
-            return Item::fromArray($item);
-        }, $this->items);
+        return array_map(static fn (array $item) => Item::fromArray($item), $this->items);
     }
 }

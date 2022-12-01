@@ -6,16 +6,14 @@ use Technodelight\Jira\Domain\Exception\MissingProjectKeyException;
 
 class ProjectKey
 {
-    private $projectKey;
+    private function __construct(private readonly string $projectKey) {}
 
-    public static function fromString($string)
+    public static function fromString($string): ProjectKey
     {
         if (empty(trim($string))) {
             throw new MissingProjectKeyException();
         }
-        $instance = new self;
-        $instance->projectKey = strtoupper(trim($string));
-        return $instance;
+        return new self(strtoupper(trim($string)));
     }
 
     public function __toString()

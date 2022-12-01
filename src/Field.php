@@ -4,14 +4,14 @@ namespace Technodelight\Jira\Domain;
 
 class Field
 {
-    private $id;
-    private $key;
-    private $name;
-    private $custom;
-    private $clauseNames;
-    private $schema;
+    private string $id;
+    private string $key;
+    private string $name;
+    private bool $custom;
+    private array $clauseNames;
+    private array $schema;
 
-    public static function fromArray(array $field)
+    public static function fromArray(array $field): Field
     {
         $instance = new self;
 
@@ -19,88 +19,59 @@ class Field
         $instance->key = $field['key'];
         $instance->name = $field['name'];
         $instance->custom = $field['custom'];
-        $instance->clauseNames = $field['clauseNames'];
-        $instance->schema = isset($field['schema']) ? $field['schema'] : [];
+        $instance->clauseNames = $field['clauseNames'] ?? [];
+        $instance->schema = $field['schema'] ?? [];
 
         return $instance;
     }
 
-    /**
-     * @return string
-     */
-    public function id()
+    public function id(): string
     {
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
-    public function key()
+    public function key(): string
     {
         return $this->key;
     }
 
-    /**
-     * @return string
-     */
-    public function name()
+    public function name(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return bool
-     */
-    public function isCustom()
+    public function isCustom(): bool
     {
-        return $this->custom == true;
+        return $this->custom;
     }
 
-    /**
-     * @return array
-     */
-    public function clauseNames()
+    /** @return string[] */
+    public function clauseNames(): array
     {
         return $this->clauseNames;
     }
 
-    /**
-     * @return array
-     */
-    public function schema()
+    public function schema(): array
     {
         return $this->schema;
     }
 
-    /**
-     * @return string
-     */
-    public function schemaType()
+    public function schemaType(): string
     {
-        if (isset($this->schema['type'])) {
-            return $this->schema['type'];
-        }
-        return '';
+        return $this->schema['type'] ?? '';
     }
 
-    /**
-     * @return string
-     */
     public function schemaItemType()
     {
-        if (isset($this->schema['items'])) {
-            return $this->schema['items'];
-        }
-        return '';
-    }
-
-    public function __toString()
-    {
-        return (string) $this->key();
+        return $this->schema['items'] ?? '';
     }
 
     private function __construct()
     {
+    }
+
+    public function __toString()
+    {
+        return $this->key();
     }
 }

@@ -2,64 +2,47 @@
 
 namespace Technodelight\Jira\Domain\Issue;
 
+use InvalidArgumentException;
 use Technodelight\Jira\Domain\Issue\Meta\Field;
 
 class Meta
 {
-    /**
-     * @var string
-     */
-    private $issueKey;
-    /**
-     * @var Field[]
-     */
-    private $fields = [];
+    private function __construct(
+        private readonly string $issueKey,
+        private readonly array $fields
+    ) {}
 
-    public static function fromArrayAndIssueKey(array $metaFields, $issueKey)
+    public static function fromArrayAndIssueKey(array $metaFields, string $issueKey): Meta
     {
-        $instance = new self;
-        $instance->fields = array_map(
-            function (array $meta) {
-                return Field::fromArray($meta);
-            },
-            $metaFields
-        );
-        $instance->issueKey = $issueKey;
-        return $instance;
+        return new self($issueKey, $metaFields);
     }
 
-    public function issueKey()
+    public function issueKey(): IssueKey
     {
-        return $this->issueKey;
+        return IssueKey::fromString($this->issueKey);
     }
 
-    /**
-     * @return Field[]
-     */
-    public function fields()
+    /** @return Field[] */
+    public function fields(): array
     {
-        return $this->fields;
+        return array_map(static fn (array $meta) => Field::fromArray($meta), $this->fields);
     }
 
     /**
      * @param string $fieldName
      * @return Field
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
-    public function field($fieldName)
+    public function field(string $fieldName)
     {
-        foreach ($this->fields as $field) {
-            if ($field->key() == $fieldName || $field->name() == $fieldName) {
+        foreach ($this->fields() as $field) {
+            if ($field->key() === $fieldName || $field->name() === $fieldName) {
                 return $field;
             }
         }
 
-        throw new \InvalidArgumentException(
+        throw new InvalidArgumentException(
             sprintf('No meta found for field "%s"', $fieldName)
         );
-    }
-
-    private function __construct()
-    {
     }
 }

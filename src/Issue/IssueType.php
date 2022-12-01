@@ -4,31 +4,30 @@ namespace Technodelight\Jira\Domain\Issue;
 
 class IssueType
 {
-    private $name;
-    private $description;
+    private function __construct(
+        private readonly string $name,
+        private readonly string $description
+    ) {}
 
-    public static function fromArray(array $issueType)
+    public static function fromArray(array $issueType): IssueType
     {
-        $instance = new self;
-        $instance->name = $issueType['name'];
-        $instance->description = $issueType['description'];
-        return $instance;
+        return new self(
+            $issueType['name'] ?? '',
+            $issueType['description'] ?? ''
+        );
     }
 
-    public static function createEmpty()
+    public static function createEmpty(): IssueType
     {
-        $instance = new self;
-        $instance->name = '';
-        $instance->description = '';
-        return $instance;
+        return self::fromArray([]);
     }
 
-    public function name()
+    public function name(): string
     {
         return $this->name;
     }
 
-    public function description()
+    public function description(): string
     {
         return $this->description;
     }
@@ -36,9 +35,5 @@ class IssueType
     public function __toString()
     {
         return $this->name;
-    }
-
-    private function __construct()
-    {
     }
 }

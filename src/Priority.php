@@ -6,58 +6,45 @@ use Technodelight\Jira\Domain\Priority\PriorityId;
 
 class Priority
 {
-    private $id;
-    private $name;
-    private $description;
-    private $statusColor;
+    private function __construct(
+        private readonly string $id,
+        private readonly string $name,
+        private readonly string $description,
+        private readonly string $statusColor
+    ) {}
 
-    public static function fromArray(array $status)
+    public static function fromArray(array $status): Priority
     {
-        $instance = new self;
-        $instance->id = PriorityId::fromString($status['id']);
-        $instance->name = $status['name'];
-        $instance->description = isset($status['description']) ? $status['description'] : '';
-        $instance->statusColor = isset($status['statusColor']) ? $status['statusColor'] : '';
-
-        return $instance;
+        return new self(
+            $status['id'],
+            $status['name'],
+            $status['description'] ?? '',
+            $status['statusColor'] ?? ''
+        );
     }
 
-    public static function createEmpty()
+    public function id(): PriorityId
     {
-        $instance = new self;
-        $instance->id = '';
-        $instance->name = '';
-        $instance->description = '';
-        $instance->statusColor = '';
-
-        return $instance;
+        return PriorityId::fromString($this->id);
     }
 
-    /**
-     * @return PriorityId
-     */
-    public function id()
-    {
-        return $this->id;
-    }
-
-    public function name()
+    public function name(): string
     {
         return $this->name;
     }
-    public function description()
+
+    public function description(): string
     {
         return $this->description;
     }
-    public function statusColor()
+
+    public function statusColor(): string
     {
         return $this->statusColor;
     }
+
     public function __toString()
     {
         return $this->name();
-    }
-    private function __construct()
-    {
     }
 }

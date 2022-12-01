@@ -4,41 +4,40 @@ namespace Technodelight\Jira\Domain\IssueLink;
 
 class Type
 {
-    private $id;
-    private $name;
-    private $inward;
-    private $outward;
-    public static function fromArray(array $array)
+    private function __construct(
+        private readonly int $id,
+        private readonly string $name,
+        private readonly string $inward,
+        private readonly string $outward
+    ) {}
+
+    public static function fromArray(array $array): Type
     {
-        $type = new Type;
-        $type->id = $array['id'];
-        $type->name = $array['name'];
-        $type->inward = $array['inward'];
-        $type->outward = $array['outward'];
-        return $type;
+        return new self(
+            (int)$array['id'],
+            $array['name'],
+            $array['inward'],
+            $array['outward']
+        );
     }
 
-    public function id()
+    public function id(): int
     {
-        return (int) $this->id;
+        return $this->id;
     }
 
-    public function name()
+    public function name(): string
     {
-        return (string) $this->name;
+        return $this->name;
     }
 
-    public function inward()
+    public function inward(): string
     {
-        return (string) $this->inward;
+        return $this->inward;
     }
 
-    public function outward()
+    public function outward(): string
     {
-        return (string) $this->outward;
-    }
-
-    private function __construct()
-    {
+        return $this->outward;
     }
 }

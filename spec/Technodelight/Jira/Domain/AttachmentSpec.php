@@ -5,6 +5,7 @@ namespace spec\Technodelight\Jira\Domain;
 use DateTime;
 use PhpSpec\ObjectBehavior;
 use Technodelight\Jira\Domain\Issue;
+use Technodelight\Jira\Domain\User;
 
 class AttachmentSpec extends ObjectBehavior
 {
@@ -31,8 +32,8 @@ class AttachmentSpec extends ObjectBehavior
     function it_can_be_created_from_array(Issue $issue)
     {
         $this->beConstructedFromArray($this->attachment, $issue);
-        $this->id()->shouldReturn('12345');
-        $this->author()->shouldReturn('User Name');
+        $this->id()->shouldReturn(12345);
+        $this->author()->shouldHaveType(User::class);
         $this->created()->shouldHaveType(DateTime::class);
         $this->size()->shouldReturn(203872);
         $this->filename()->shouldReturn('attachment-filename.pdf');

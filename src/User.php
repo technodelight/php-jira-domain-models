@@ -4,68 +4,74 @@ namespace Technodelight\Jira\Domain;
 
 class User
 {
-    private $id, $key, $name, $emailAddress, $avatarUrls, $displayName, $active, $timeZone, $locale;
+    private function __construct(
+        private readonly string $id,
+        private readonly string $key,
+        private readonly string $name,
+        private readonly string $displayName,
+        private readonly string $emailAddress,
+        private readonly array $avatarUrls,
+        private readonly bool $active,
+        private readonly ?string $timeZone,
+        private readonly ?string $locale,
+    ) {}
 
-    public static function fromArray(array $array)
+    public static function fromArray(array $array): User
     {
-        $user = new self;
-        $user->id = $array['accountId'];
-        $user->key = isset($array['key']) ? $array['key'] : '';
-        $user->name = isset($array['name']) ? $array['name'] : '';
-        $user->emailAddress = isset($array['emailAddress']) ? $array['emailAddress'] : '';
-        $user->avatarUrls = isset($array['avatarUrls']) ? $array['avatarUrls'] : [];
-        $user->displayName = $array['displayName'];
-        $user->active = isset($array['active']) ? $array['active'] : true;
-        $user->timeZone = isset($array['timeZone']) ? $array['timeZone'] : '';
-        $user->locale = isset($array['locale']) ? $array['locale'] : null;
-
-        return $user;
+        return new self(
+            $array['accountId'],
+            $array['key'] ?? '',
+            $array['name'] ?? '',
+            $array['displayName'] ?? '',
+        $array['emailAddress'] ?? '',
+        $array['avatarUrls'] ?? [],
+            $array['active'] ?? true,
+            $array['timeZone'] ?? '',
+            $array['locale'] ?? null
+        );
     }
 
-    public function id()
+    public function id(): string
     {
         return $this->id;
     }
 
-    public function key()
+    public function key(): string
     {
         return $this->key;
     }
 
-    public function name()
+    public function name(): string
     {
         return $this->name;
     }
 
-    public function emailAddress()
-    {
-        return $this->emailAddress;
-    }
-
-    /**
-     * @return array
-     */
-    public function avatarUrls()
-    {
-        return $this->avatarUrls;
-    }
-
-    public function displayName()
+    public function displayName(): string
     {
         return $this->displayName;
     }
 
-    public function active()
+    public function emailAddress(): string
+    {
+        return $this->emailAddress;
+    }
+
+    public function avatarUrls(): array
+    {
+        return $this->avatarUrls;
+    }
+
+    public function active(): bool
     {
         return $this->active;
     }
 
-    public function timeZone()
+    public function timeZone(): ?string
     {
         return $this->timeZone;
     }
 
-    public function locale()
+    public function locale(): ?string
     {
         return $this->locale;
     }

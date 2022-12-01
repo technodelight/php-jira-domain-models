@@ -2,7 +2,8 @@
 
 namespace Technodelight\Jira\Domain\Exception;
 
-class InvalidIdException extends \UnexpectedValueException implements ArgumentException
+/** @deprecated */
+class InvalidIdException extends NonNumericException
 {
 
 }

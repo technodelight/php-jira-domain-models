@@ -6,74 +6,44 @@ use Technodelight\Jira\Domain\Filter\FilterId;
 
 final class Filter
 {
-    /**
-     * @var array
-     */
-    private $filter = [];
+    private function __construct(private readonly array $filter) {}
 
-    public static function fromArray(array $filter)
+    public static function fromArray(array $filter): Filter
     {
-        $instance = new self;
-        $instance->filter = $filter;
-        return $instance;
+        return new self($filter);
     }
 
-    private function __construct()
+    public function id(): FilterId
     {
+        return FilterId::fromNumeric($this->filter['id']);
     }
 
-    /**
-     * @return FilterId
-     */
-    public function id()
-    {
-        return FilterId::fromString($this->filter['id']);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isFavourite()
+    public function isFavourite(): bool
     {
         return !empty($this->filter['favourite']);
     }
 
-    /**
-     * @return string
-     */
-    public function jql()
+    public function jql(): string
     {
-        return $this->filter['jql'];
+        return $this->filter['jql'] ?? '';
     }
 
-    /**
-     * @return string
-     */
-    public function name()
+    public function name(): string
     {
-        return $this->filter['name'];
+        return $this->filter['name'] ?? '';
     }
 
-    /**
-     * @return string
-     */
-    public function description()
+    public function description(): string
     {
         return !empty($this->filter['description']) ? $this->filter['description'] : '';
     }
 
-    /**
-     * @return User
-     */
-    public function owner()
+    public function owner(): User
     {
         return User::fromArray($this->filter['owner']);
     }
 
-    /**
-     * @return int
-     */
-    public function favouritedCount()
+    public function favouritedCount(): int
     {
         return !empty($this->filter['favouritedCount']) ? (int) $this->filter['favouritedCount'] : 0;
     }

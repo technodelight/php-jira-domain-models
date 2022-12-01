@@ -226,7 +226,7 @@ class ProjectSpec extends ObjectBehavior
     function it_can_be_created_from_an_array()
     {
         $this->beConstructedFromArray($this->project);
-        $this->id()->shouldBeLike(ProjectId::fromString($this->project['id']));
+        $this->id()->shouldBeLike(ProjectId::fromNumeric($this->project['id']));
         $this->key()->shouldReturn($this->project['key']);
         $this->name()->shouldReturn($this->project['name']);
         $this->projectTypeKey()->shouldReturn($this->project['projectTypeKey']);

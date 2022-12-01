@@ -6,82 +6,65 @@ use DateTime;
 
 class Attachment
 {
-    private $attachment = [];
-
-    /**
-     * @var Issue
-     */
-    private $issue;
-
-    private function __construct()
-    {
-    }
+    private function __construct(
+        private readonly Issue $issue,
+        private readonly string $id,
+        private readonly ?array $author,
+        private readonly string $created,
+        private readonly int $size,
+        private readonly string $filename,
+        private readonly string $url
+    ) {}
 
     public static function fromArray(array $attachment, Issue $issue)
     {
-        $instance = new Attachment();
-        $instance->attachment = $attachment;
-        $instance->issue = $issue;
-
-        return $instance;
+        return new Attachment(
+            $issue,
+            (int)($attachment['id'] ?? ''),
+            $attachment['author'] ?? [],
+            $attachment['created'] ?? '',
+            (int)($attachment['size'] ?? 0),
+            $attachment['filename'] ?? '',
+            $attachment['content'] ?? ''
+        );
     }
 
-    /**
-     * @return string
-     */
-    public function id()
-    {
-        return $this->attachment['id'];
-    }
-
-    /**
-     * @return string
-     */
-    public function author()
-    {
-        if (isset($this->attachment['author']['displayName'])) {
-            return $this->attachment['author']['displayName'];
-        }
-        return '';
-    }
-
-    /**
-     * @return DateTime
-     */
-    public function created()
-    {
-        return DateTimeFactory::fromString($this->attachment['created']);
-    }
-
-    /**
-     * @return int
-     */
-    public function size()
-    {
-        return $this->attachment['size'];
-    }
-
-    /**
-     * @return string
-     */
-    public function filename()
-    {
-        return $this->attachment['filename'];
-    }
-
-    /**
-     * @return string
-     */
-    public function url()
-    {
-        return $this->attachment['content'];
-    }
-
-    /**
-     * @return Issue
-     */
-    public function issue()
+    public function issue(): Issue
     {
         return $this->issue;
+    }
+
+    public function id(): int
+    {
+        return $this->id;
+    }
+
+    public function author(): ?User
+    {
+        if ($this->author) {
+            return User::fromArray($this->author);
+        }
+
+        return null;
+    }
+
+    public function created(): DateTime
+    {
+        return DateTimeFactory::fromString($this->created);
+    }
+
+    public function size(): int
+    {
+        return $this->size;
+    }
+
+    public function filename(): string
+    {
+        return $this->filename;
+    }
+
+    public function url(): string
+    {
+        return $this->url;
     }
 }

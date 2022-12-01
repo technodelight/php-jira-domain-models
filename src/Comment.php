@@ -7,58 +7,53 @@ use Technodelight\Jira\Domain\Comment\CommentId;
 
 class Comment
 {
-    private $id;
-    private $author;
-    private $body;
-    private $created;
-    private $updated;
-    private $visibility;
+    private function __construct(
+        private readonly string $id,
+        private readonly array $author,
+        private readonly string $body,
+        private readonly string $created,
+        private readonly string $updated,
+        private readonly array $visibility
+    ) {}
 
-    public static function fromArray(array $jiraRecord)
+    public static function fromArray(array $record): Comment
     {
-        $instance = new self;
-        $instance->id = CommentId::fromString($jiraRecord['id']);
-        $instance->author = $jiraRecord['author'];
-        $instance->body = $jiraRecord['body'];
-        $instance->created = $jiraRecord['created'];
-        $instance->updated = $jiraRecord['updated'];
-        $instance->visibility = isset($jiraRecord['visibility']) ? $jiraRecord['visibility'] : [];
-
-        return $instance;
+        return new self(
+            $record['id'],
+            $record['author'],
+            $record['body'],
+            $record['created'],
+            $record['updated'],
+            $record['visibility'] ?? []
+        );
     }
 
-    /**
-     * @return CommentId
-     */
-    public function id()
+    public function id(): CommentId
     {
-        return $this->id;
+        return CommentId::fromString($this->id);
     }
 
-    public function body()
+    public function body(): string
     {
         return $this->body;
     }
 
-    public function author()
+    public function author(): User
     {
         return User::fromArray($this->author);
     }
 
-    public function visibility()
+    public function visibility(): string
     {
-        if (!empty($this->visibility)) {
-            return $this->visibility['value'];
-        }
-        return '';
+        return $this->visibility['value'] ?? '';
     }
 
-    public function created()
+    public function created(): DateTime
     {
         return DateTimeFactory::fromString($this->created);
     }
 
-    public function updated()
+    public function updated(): DateTime
     {
         return DateTimeFactory::fromString($this->updated);
     }

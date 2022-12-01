@@ -4,144 +4,98 @@ namespace Technodelight\Jira\Domain\Issue\Meta;
 
 class Field
 {
-    /**
-     * @var string
-     */
-    private $key;
-    /**
-     * @var string
-     */
-    private $name;
-    /**
-     * @var array
-     */
-    private $operations = [];
-    /**
-     * @var array
-     */
-    private $schema = [];
-    /**
-     * @var bool
-     */
-    private $required;
-    /**
-     * @var bool
-     */
-    private $custom;
-    /**
-     * @var array
-     */
-    private $allowedValues = [];
-    /**
-     * @var string
-     */
-    private $autocompleteUrl;
-
-    private function __construct()
-    {
-    }
+    private function __construct(
+        private readonly string $key,
+        private readonly string $name,
+        private readonly array $operations,
+        private readonly array $schema,
+        private readonly bool $required,
+        private readonly bool $custom,
+        private readonly array $allowedValues,
+        private readonly string $autocompleteUrl
+    ) {}
 
     public static function fromArray(array $meta)
     {
-        $field = new self;
-
-        $field->key = $meta['key'];
-        $field->name = $meta['name'];
-        $field->operations = $meta['operations'];
-        $field->schema = isset($meta['schema']) ? $meta['schema'] : [];
-        $field->required = isset($meta['required']) ? (bool) $meta['required'] : false;
-        $field->custom = isset($meta['schema']['custom']);
-        $field->allowedValues = isset($meta['allowedValues']) ? $meta['allowedValues'] : [];
-        $field->autocompleteUrl = isset($meta['autoCompleteUrl']) ? $meta['autoCompleteUrl'] : '';
-
-        return $field;
+        return new self(
+            $meta['key'],
+            $meta['name'],
+            $meta['operations'],
+            $meta['schema'] ?? [],
+            (bool)$meta['required'],
+            (bool)($meta['schema']['custom'] ?? false),
+            $meta['allowedValues'] ?? [],
+            $meta['autoCompleteUrl'] ?? ''
+        );
     }
 
-    public function key()
+    public function key(): string
     {
         return $this->key;
     }
 
-    public function name()
+    public function name(): string
     {
         return $this->name;
     }
 
-    public function operations()
+    public function operations(): array
     {
         return $this->operations;
     }
 
-    /**
-     * @return array
-     */
-    public function schema()
+    public function schema(): array
     {
         return $this->schema;
     }
 
-    /**
-     * @return string
-     */
-    public function schemaType()
+    public function schemaType(): string
     {
-        if (isset($this->schema['type'])) {
-            return $this->schema['type'];
-        }
-        return '';
+        return $this->schema['type'] ?? '';
     }
 
-    /**
-     * @return string
-     */
-    public function schemaItemType()
+    public function schemaItemType(): string
     {
-        if (isset($this->schema['items'])) {
-            return $this->schema['items'];
-        }
-        return '';
+        return $this->schema['items'] ?? '';
     }
 
-    /**
-     * @return bool
-     */
-    public function isRequired()
+    public function isRequired(): bool
     {
-        return $this->required == true;
+        return $this->required === true;
     }
 
-    /**
-     * @return bool
-     */
-    public function isCustom()
+    public function isCustom(): bool
     {
-        return $this->custom == true;
+        return $this->custom;
     }
 
-    public function allowedValues()
+    public function allowedValues(): array
     {
         return array_map(
-            function ($valueArray) {
+            static function (array|string $valueArray) {
                 if (is_array($valueArray)) {
                     if (isset($valueArray['name'])) {
                         return $valueArray['name'];
-                    } else if (isset($valueArray['label'])) {
+                    }
+
+                    if (isset($valueArray['label'])) {
                         return $valueArray['label'];
                     }
                 }
+
                 return $valueArray;
             },
             $this->allowedValues
         );
     }
 
-    public function autocompleteUrl()
+    public function autocompleteUrl(): string
     {
         return $this->autocompleteUrl;
     }
 
     public function __toString()
     {
-        return (string) $this->key();
+        return $this->key();
     }
 }

@@ -4,42 +4,40 @@ namespace Technodelight\Jira\Domain;
 
 class UserPickerResult
 {
-    private $key;
-    private $name;
-    private $displayName;
-    private $html;
+    private function __construct(
+        private readonly string $key,
+        private readonly string $name,
+        private readonly string $displayName,
+        private readonly string $html
+    ) {}
 
-    public static function fromArray(array $result)
+    public static function fromArray(array $result): UserPickerResult
     {
-        $instance = new self;
-        $instance->key = $result['key'];
-        $instance->name = $result['name'];
-        $instance->displayName = $result['displayName'];
-        $instance->html = $result['html'];
-        return $instance;
+        return new self(
+            $result['key'],
+            $result['name'],
+            $result['displayName'],
+            $result['html'],
+        );
     }
 
-    public function key()
+    public function key(): string
     {
         return $this->key;
     }
 
-    public function name()
+    public function name(): string
     {
         return $this->name;
     }
 
-    public function displayName()
+    public function displayName(): string
     {
         return $this->displayName;
     }
 
-    public function html()
+    public function html(): string
     {
         return $this->html;
-    }
-
-    private function __construct()
-    {
     }
 }

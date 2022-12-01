@@ -6,40 +6,34 @@ use Technodelight\Jira\Domain\IssueLink\Type;
 
 class IssueLink
 {
-    private $id;
-    private $type;
-    private $inwardIssue;
-    private $outwardIssue;
+    private function __construct(
+        private readonly int $id,
+        private readonly Type $type,
+        private readonly ?array $inwardIssue,
+        private readonly ?array $outwardIssue
+    ) {}
 
-    private function __construct()
+    public static function fromArray(array $array): IssueLink
     {
+        return new self(
+            isset($array['id']) ? (int)$array['id'] : null,
+            $array['type'] instanceof Type ? $array['type'] : Type::fromArray($array['type']),
+            $array['inwardIssue'] ?? null,
+            $array['outwardIssue'] ?? null
+        );
     }
 
-    public static function fromArray(array $array)
+    public function id(): int
     {
-        $issueLink = new IssueLink();
-        $issueLink->id = isset($array['id']) ? $array['id'] : null;
-        $issueLink->type = $array['type'];
-        $issueLink->inwardIssue = isset($array['inwardIssue']) ? $array['inwardIssue'] : null;
-        $issueLink->outwardIssue = isset($array['outwardIssue']) ? $array['outwardIssue'] : null;
-
-        return $issueLink;
+        return $this->id;
     }
 
-    public function id()
+    public function type(): Type
     {
-        return (int) $this->id;
+        return $this->type;
     }
 
-    public function type()
-    {
-        if ($this->type instanceof Type) {
-            return $this->type;
-        }
-        return Type::fromArray($this->type);
-    }
-
-    public function inwardIssue()
+    public function inwardIssue(): ?Issue
     {
         if (!$this->inwardIssue) {
             return null;
@@ -48,7 +42,7 @@ class IssueLink
         return Issue::fromArray($this->inwardIssue);
     }
 
-    public function outwardIssue()
+    public function outwardIssue(): ?Issue
     {
         if (!$this->outwardIssue) {
             return null;
@@ -57,22 +51,22 @@ class IssueLink
         return Issue::fromArray($this->outwardIssue);
     }
 
-    public function isInward()
+    public function isInward(): bool
     {
         return !is_null($this->inwardIssue);
     }
 
-    public function isOutward()
+    public function isOutward(): bool
     {
         return !is_null($this->outwardIssue);
     }
 
-    public function __toString()
+    public function __toString(): string
     {
         if ($this->isInward()) {
-            return sprintf('%s %s', $this->type()->inward(), $this->inwardIssue()->issueKey());
+            return sprintf('%s %s', $this->type()->inward(), $this->inwardIssue()?->issueKey());
         }
 
-        return sprintf('%s %s', $this->type()->outward(), $this->outwardIssue()->issueKey());
+        return sprintf('%s %s', $this->type()->outward(), $this->outwardIssue()?->issueKey());
     }
 }

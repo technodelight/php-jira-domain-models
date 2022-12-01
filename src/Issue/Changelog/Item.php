@@ -4,120 +4,75 @@ namespace Technodelight\Jira\Domain\Issue\Changelog;
 
 class Item
 {
-    /**
-     * @var mixed
-     */
-    private $from;
-    /**
-     * @var mixed
-     */
-    private $to;
-    /**
-     * @var string
-     */
-    private $fromString;
-    /**
-     * @var string
-     */
-    private $toString;
-    /**
-     * @var string
-     */
-    private $field;
-    /**
-     * @var string
-     */
-    private $fieldId;
+    private function __construct(
+        private readonly string $from,
+        private readonly string $to,
+        private readonly string $fromString,
+        private readonly string $toString,
+        private readonly string $field,
+        private readonly string $fieldId
+    ) {}
 
-    public static function fromArray(array $item)
+    public static function fromArray(array $item): Item
     {
-        $instance = new self;
-        $instance->from = $item['from'];
-        $instance->to = $item['to'];
-        $instance->fromString = $item['fromString'];
-        $instance->toString = $item['toString'];
-        $instance->field = $item['field'];
-        $instance->fieldId = isset($item['fieldId']) ? $item['fieldId'] : '';
-
-        return $instance;
+        return new self(
+            $item['from'],
+            $item['to'],
+            $item['fromString'],
+            $item['toString'],
+            $item['field'],
+            $item['fieldId'] ?? ''
+        );
     }
 
-    /**
-     * @return mixed
-     */
-    public function from()
+    public function from(): string
     {
         return $this->from;
     }
 
-    /**
-     * @return mixed
-     */
-    public function to()
+    public function to(): string
     {
         return $this->to;
     }
 
-    /**
-     * @return string
-     */
-    public function fromString()
+    public function fromString(): string
     {
         return $this->normalise($this->fromString);
     }
 
-    /**
-     * @return string
-     */
-    public function toString()
+    public function toString(): string
     {
         return $this->normalise($this->toString);
     }
 
-    /**
-     * @return bool
-     */
-    public function isMultiLine()
+    public function isMultiLine(): bool
     {
         return count(explode(PHP_EOL, $this->fromString())) > 1
             || count(explode(PHP_EOL, $this->toString())) > 1;
     }
 
-    /**
-     * @return string
-     */
-    public function field()
+    public function field(): string
     {
         return $this->field;
     }
 
-    /**
-     * @return string
-     */
-    public function fieldId()
+    public function fieldId(): string
     {
         return $this->fieldId;
     }
 
-    /**
-     * Strings should be normalised as if wysiwyg was used on windows, the contents would be json encoded
-     *
-     * @param string $string
-     * @return string
-     */
-    private function normalise($string)
+    /** Strings should be normalised as if wysiwyg was used on windows, the contents would be json encoded */
+    private function normalise(string $string): string
     {
         // it can be json string as if wysiwyg was used on windows, the contents would be json encoded to preserve line endings
-        if (null !== json_decode($string)) {
-            $string = json_decode($string);
+        if (null !== json_decode($string, true)) {
+            $string = implode(PHP_EOL, json_decode($string, true));
         }
 
         // line endings
         return strtr(
             $string,
-            [
-                "\r\n" => PHP_EOL,
-            ]
+            ["\r\n" => PHP_EOL]
         );
     }
 }

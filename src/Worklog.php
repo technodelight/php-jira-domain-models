@@ -6,158 +6,113 @@ use DateTime;
 use Technodelight\Jira\Domain\Issue\IssueKey;
 use Technodelight\Jira\Domain\Issue\IssueId;
 use Technodelight\Jira\Domain\Worklog\WorklogId;
-use Technodelight\SecondsToNone;
+use UnexpectedValueException;
 
 class Worklog
 {
-    /**
-     * @var IssueKey
-     */
-    private $issueKey;
-    /**
-     * @var WorklogId
-     */
-    private $worklogId;
-    /**
-     * @var User|null
-     */
-    private $author;
-    /**
-     * @var string
-     */
-    private $comment;
-    /**
-     * @var DateTime
-     */
-    private $date;
-    /**
-     * @var int
-     */
-    private $timeSpentSeconds;
-    /**
-     * @var Issue|null
-     */
-    private $issue = null;
+    private readonly int $issueId;
+    private readonly string $issueKey;
+    private ?Issue $issue = null;
+    private DateTime $date;
 
-    private function __construct($issueKeyOrId, $worklogId, $author, $comment, $date, $timeSpentSeconds)
-    {
+    private function __construct(
+        int|string|IssueId|IssueKey $issueKeyOrId,
+        private readonly string $worklogId,
+        private string $comment,
+        string|DateTime $date,
+        private int $timeSpentSeconds,
+        private readonly ?array $author = null
+    ) {
         if (is_numeric($issueKeyOrId)) {
-            $this->issueId = IssueId::fromString($issueKeyOrId);
+            $this->issueId = (int)$issueKeyOrId;
         } else if ($issueKeyOrId instanceof IssueId) {
-            $this->issueId = $issueKeyOrId;
+            $this->issueId = $issueKeyOrId->id();
         }
         if ($issueKeyOrId instanceof IssueKey) {
-            $this->issueKey = $issueKeyOrId;
+            $this->issueKey = $issueKeyOrId->issueKey();
         } else if (is_string($issueKeyOrId) && !isset($this->issueId)) {
-            $this->issueKey = IssueKey::fromString($issueKeyOrId);
+            $this->issueKey = $issueKeyOrId;
         }
-        $this->worklogId = is_string($worklogId) ? WorklogId::fromString($worklogId) : $worklogId;
-        if (!empty($author) && is_array($author)) {
-            $this->author = User::fromArray($author);
-        } else {
-            $this->author = $author;
+        if (is_string($date)) {
+            $this->date = DateTimeFactory::fromString($date);
         }
-        $this->comment = $comment;
-        $this->date = DateTimeFactory::fromString($date);
-        $this->timeSpentSeconds = $timeSpentSeconds;
     }
 
-    /**
-     * @param array $record
-     * @param string $issueKey
-     * @return Worklog
-     */
-    public static function fromArray(array $record, $issueKey)
+    public static function fromArray(array $record, IssueKey $issueKey): Worklog
     {
         return new self(
             $issueKey,
             $record['id'],
-            $record['author'],
-            isset($record['comment']) ? $record['comment'] : null,
+            $record['comment'] ?? null,
             $record['started'],
-            $record['timeSpentSeconds']
+            $record['timeSpentSeconds'],
+            $record['author']
         );
     }
 
-    public static function fromIssueAndArray(Issue $issue, array $record)
+    public static function fromIssueAndArray(Issue $issue, array $record): Worklog
     {
         $worklog = self::fromArray($record, $issue->key());
         $worklog->issue = $issue;
         return $worklog;
     }
 
-    public function issueKey()
+    public function issueKey(): IssueKey
     {
-        return $this->issueKey;
+        return IssueKey::fromString($this->issueKey);
     }
 
-    public function issueId()
+    public function issueId(): IssueId
     {
-        return $this->issueId;
+        return IssueId::fromNumeric($this->issueId);
     }
 
-    /**
-     * Can be one of: issueKey or issueId
-     * @return IssueKey|IssueId
-     */
-    public function issueIdentifier()
+    /** Can be one of: issueKey or issueId */
+    public function issueIdentifier(): IssueKey|IssueId
     {
         return $this->issueKey ?: $this->issueId;
     }
 
-    /**
-     * @return \Technodelight\Jira\Domain\Issue
-     */
-    public function issue()
+    public function issue(): ?Issue
     {
         return $this->issue;
     }
 
-    public function assignIssue(Issue $issue)
+    public function assignIssue(Issue $issue): void
     {
-        if (!empty($this->issueKey) && ((string)$issue->issueKey() !== (string) $this->issueKey)) {
-            throw new \UnexpectedValueException(
-                'Unable to assign issue'
+        if (!empty($this->issueKey) && ((string)$issue->issueKey() !== $this->issueKey)) {
+            throw new UnexpectedValueException(
+                'Unable to assign issue as issue key is not matching with work log'
             );
         }
         $this->issue = $issue;
         $issue->worklogs()->push($this);
     }
 
-    /**
-     * @return WorklogId
-     */
-    public function id()
+    public function id(): WorklogId
     {
-        return $this->worklogId;
+        return WorklogId::fromNumeric($this->worklogId);
     }
 
-    /**
-     * @return User
-     */
-    public function author()
+    public function author(): ?User
     {
-        return $this->author;
+        if ($this->author) {
+            return User::fromArray($this->author);
+        }
+        return null;
     }
 
-    /**
-     * @param string|null $comment
-     * @return string|$this
-     */
-    public function comment($comment = null)
+    public function comment(string $comment = null): self|string
     {
         if ($comment) {
             $this->comment = $comment;
             return $this;
         }
+
         return $this->comment;
     }
 
-    /**
-     * @param DateTime|string|null $date
-     * @return DateTime
-     */
-    public function date($date = null)
+    public function date(DateTime|string $date = null): self|Datetime
     {
         if ($date) {
             $this->date = $date instanceof DateTime ? $date : DateTimeFactory::fromString($date);
@@ -166,26 +121,7 @@ class Worklog
         return $this->date;
     }
 
-    /**
-     * @param string|null $timeSpent set time spent using human text (1d2h)
-     * @deprecated
-     * @return string|$this
-     */
-    public function timeSpent($timeSpent = null)
-    {
-        if ($timeSpent) {
-            $this->timeSpentSeconds = (new SecondsToNone())->humanToSeconds($timeSpent);
-            return $this;
-        }
-
-        return (new SecondsToNone)->secondsToHuman($this->timeSpentSeconds);
-    }
-
-    /**
-     * @param int|null $seconds
-     * @return int
-     */
-    public function timeSpentSeconds($seconds = null)
+    public function timeSpentSeconds(int $seconds = null): self|int
     {
         if (!is_null($seconds)) {
             $this->timeSpentSeconds = $seconds;
@@ -194,9 +130,9 @@ class Worklog
         return $this->timeSpentSeconds;
     }
 
-    public function isSame(Worklog $log)
+    public function isSame(Worklog $log): bool
     {
-        return [$log->timeSpentSeconds, $log->comment, $log->date, $log->author()]
-            == [$this->timeSpentSeconds, $this->comment, $this->date, $this->author()];
+        return [$log->timeSpentSeconds, $log->comment, $log->date, $log->author()?->id()]
+            === [$this->timeSpentSeconds, $this->comment, $this->date, $this->author()?->id()];
     }
 }

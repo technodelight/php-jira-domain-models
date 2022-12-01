@@ -8,112 +8,68 @@ use Technodelight\Jira\Domain\Issue\IssueType;
 
 class Issue
 {
-    /**
-     * @var string
-     */
-    private $id;
-    /**
-     * @var string
-     */
-    private $link;
-    /**
-     * @var string
-     */
-    private $key;
-    /**
-     * @var array
-     */
-    private $fields = [];
-    /**
-     * Parent issue, if any
-     *
-     * @var Issue|null
-     */
-    private $parent;
-    /**
-     * Subtasks
-     *
-     * @var Issue[]
-     */
-    private $subtasks;
-    /**
-     * Worklogs, if all fields are returned by API
-     *
-     * @var WorklogCollection
-     */
-    private $worklogs;
-    /**
-     * Comments, if any
-     *
-     * @var Comment[]
-     */
-    private $comments = [];
-    /**
-     * @var Attachment[]
-     */
-    private $attachments = [];
-    /**
-     * @var IssueLink[]
-     */
-    private $links = [];
+    private string $id;
+    private string $link;
+    private string $key;
+    private array $fields = [];
+    private ?Issue $parent = null;
+    private array $subtasks;
+    private ?WorklogCollection $worklogs;
+    /** @var Comment[] */
+    private array $comments;
+    /** @var Attachment[] */
+    private array $attachments;
+    /** @var IssueLink[] */
+    private array $links = [];
 
-    public function id()
+    public function id(): string
     {
         return $this->id;
     }
 
-    public function key()
+    public function key(): IssueKey
     {
         return IssueKey::fromString($this->key);
     }
 
-    public function ticketNumber()
+    public function ticketNumber(): IssueKey
     {
         return IssueKey::fromString($this->key);
     }
 
-    public function issueKey()
+    public function issueKey(): IssueKey
     {
-        return $this->ticketNumber();
+        return IssueKey::fromString($this->key);
     }
 
-    public function project()
+    public function project(): Project
     {
         return Project::fromArray($this->findField('project') ?: []);
     }
 
-    /**
-     * @return int
-     */
-    public function sequenceNumber()
+    public function sequenceNumber(): int
     {
-        list(, $sequenceNumber) = explode('-', $this->key, 2);
+        [, $sequenceNumber] = explode('-', $this->key, 2);
 
         return (int) $sequenceNumber;
     }
 
-    /**
-     * @return string|false
-     */
-    public function summary()
+    public function summary(): ?string
     {
         return $this->findField('summary');
     }
 
-    /**
-     * @return string|false
-     */
-    public function description()
+    public function description(): ?string
     {
         return $this->findField('description');
     }
 
-    public function created()
+    public function created(): DateTime
     {
         return DateTimeFactory::fromString($this->findField('created'));
     }
 
-    public function status()
+    public function status(): Status
     {
         if ($field = $this->findField('status')) {
             return Status::fromArray($field);
@@ -122,90 +78,88 @@ class Issue
         return Status::createEmpty();
     }
 
-    public function statusCategory()
+    public function statusCategory(): ?string
     {
         if ($field = $this->findField('status')) {
             return $field['statusCategory'];
         }
+
+        return null;
     }
 
-    public function environment()
+    public function environment(): ?string
     {
         return $this->findField('environment');
     }
 
-    public function reporter()
+    public function reporter(): string
     {
-        $field = $this->findField('reporter');
-        if ($field) {
+        if (($field = $this->findField('reporter'))) {
             return $field['displayName'] ?: '<unknown>';
         }
         return '';
     }
 
-    public function creator()
+    public function creator(): string
     {
-        $field = $this->findField('creator');
-        if ($field) {
+        if ($field = $this->findField('creator')) {
             return $field['displayName'] ?: '<unknown>';
         }
         return '';
     }
 
-    public function creatorUser()
+    public function creatorUser(): ?User
     {
-        $field = $this->findField('creator');
-        if (is_array($field)) {
+        if (is_array($field = $this->findField('creator'))) {
             return User::fromArray($field);
         }
+
+        return null;
     }
 
-    public function assignee()
+    public function assignee(): string
     {
-        $field = $this->findField('assignee');
-        if ($field) {
+        if ($field = $this->findField('assignee')) {
             return $field['displayName'] ?: '?';
         }
         return 'Unassigned';
     }
 
-    public function assigneeUser()
+    public function assigneeUser(): ?User
     {
-        $field = $this->findField('assignee');
-        if (is_array($field)) {
+        if (is_array($field = $this->findField('assignee'))) {
             return User::fromArray($field);
         }
+
+        return null;
     }
 
-    public function progress()
+    public function progress(): ?string
     {
         return $this->findField('progress');
     }
 
-    public function estimate()
+    public function estimate(): int
     {
-        return (int) $this->findField('timeestimate');
+        return (int)$this->findField('timeestimate');
     }
 
-    public function timeSpent()
+    public function timeSpent(): int
     {
-        return (int) $this->findField('timespent');
+        return (int)$this->findField('timespent');
     }
 
-    public function remainingEstimate()
+    public function remainingEstimate(): ?int
     {
         if ($field = $this->findField('timetracking')) {
             return isset($field['remainingEstimateSeconds'])
-                ? $field['remainingEstimateSeconds']
+                ? (int)$field['remainingEstimateSeconds']
                 : null;
         }
         return null;
     }
 
-    /**
-     * @return IssueType
-     */
-    public function issueType()
+    public function issueType(): IssueType
     {
         if ($field = $this->findField('issuetype')) {
             return IssueType::fromArray($field);
@@ -214,10 +168,7 @@ class Issue
         return IssueType::createEmpty();
     }
 
-    /**
-     * @return Priority
-     */
-    public function priority()
+    public function priority(): Priority
     {
         if ($field = $this->findField('priority')) {
             return Priority::fromArray($field);
@@ -226,7 +177,7 @@ class Issue
         return Priority::createEmpty();
     }
 
-    public function url()
+    public function url(): string
     {
         $uriParts = parse_url($this->link);
         return sprintf(
@@ -237,118 +188,90 @@ class Issue
         );
     }
 
-    public function components()
+    public function components(): array
     {
         if ($comps = $this->findField('components')) {
-            $names = [];
-            foreach ($comps as $field) {
-                $names[] = $field['name'];
-            }
-
-            return $names;
+            return array_map(static fn(array $field) => $field['name'], $comps);
         }
+
+        return [];
     }
 
-    /**
-     * @return WorklogCollection
-     */
-    public function worklogs()
+    public function worklogs(): WorklogCollection
     {
         if ($this->worklogs) {
             return $this->worklogs;
         }
 
         if ($field = $this->findField('worklog')) {
-            $this->worklogs = WorklogCollection::fromIssueArray($this, $field['worklogs']);
+            return $this->worklogs = WorklogCollection::fromIssueArray($this, $field['worklogs']);
         }
-        return $this->worklogs ?: WorklogCollection::createEmpty();
+
+        return $this->worklogs = WorklogCollection::createEmpty();
     }
 
-    public function assignWorklogs(WorklogCollection $worklogs)
+    public function assignWorklogs(WorklogCollection $worklogs): void
     {
         $this->worklogs = $worklogs;
     }
 
-    public function attachments()
+    public function attachments(): array
     {
-        if (empty($this->attachments) && $attachments = $this->findField('attachment')) {
-            foreach ($attachments as $attachment) {
-                $this->attachments[] = Attachment::fromArray($attachment, $this);
-            }
+        if (!isset($this->attachments) && $attachments = $this->findField('attachment')) {
+            $this->attachments = array_map(static fn(array $attachment) => Attachment::fromArray($attachment, $this), $attachments);
         }
+
         return $this->attachments;
     }
 
-    public function comments()
+    public function comments(): array
     {
-        if (!empty($this->fields['comment']['comments']) && empty($this->comments)) {
-            $comments = $this->fields['comment']['comments'];
-            foreach ($comments as $commentArray) {
-                $this->comments[] = Comment::fromArray($commentArray);
-            }
+        if (!empty($comments = $this->fields['comment']['comments']) && !isset($this->comments)) {
+            $this->comments = array_map(static fn(array $comment) => Comment::fromArray($comment), $comments);
         }
 
         return $this->comments;
     }
 
-    public function links()
+    public function links(): array
     {
-        if (($links = $this->findField('issuelinks')) && empty($this->links)) {
-            $this->links = array_map(function($link) {
-                return IssueLink::fromArray($link);
-            }, $links);
+        if (!isset($this->links) && ($links = $this->findField('issuelinks'))) {
+            $this->links = array_map(static fn(array $link) => IssueLink::fromArray($link), $links);
         }
 
         return $this->links;
     }
 
-    /**
-     * @return Issue|null
-     */
-    public function parent()
+    public function parent(): ?Issue
     {
-        if ($parent = $this->findField('parent')) {
-            $this->parent = Issue::fromArray($parent);
+        if (!isset($this->parent) && $parent = $this->findField('parent')) {
+            $this->parent = self::fromArray($parent);
         }
 
         return $this->parent;
     }
 
-    public function subtasks()
+    public function subtasks(): array
     {
-        if (($subtasks = $this->findField('subtasks')) && !isset($this->subtasks)) {
-            $this->subtasks = [];
-            foreach ($subtasks as $subtask) {
-                $this->subtasks[] = Issue::fromArray($subtask);
-            }
+        if (!isset($this->subtasks) && ($subtasks = $this->findField('subtasks'))) {
+            $this->subtasks = array_map(static fn (array $subtask) => self::fromArray($subtask), $subtasks);
         }
 
         return $this->subtasks ?: [];
     }
 
-    /**
-     * Find a custom issue field by it's name
-     *
-     * @param string $fieldName
-     * @return string|array|false
-     */
-    public function findField($fieldName)
+    public function findField(string $fieldName): array|string|null
     {
-        return isset($this->fields[$fieldName]) ? $this->fields[$fieldName] : false;
+        return $this->fields[$fieldName] ?? null;
     }
 
-    public function __call($fieldName, $arguments = null)
-    {
-        return $this->findField($fieldName);
-    }
-
-    public static function fromArray($resultArray)
+    public static function fromArray(array $resultArray): Issue
     {
         $issue = new self;
         $issue->id = $resultArray['id'];
         $issue->link = $resultArray['self'];
         $issue->key = $resultArray['key'];
-        $issue->fields = isset($resultArray['fields']) ? $resultArray['fields'] : [];
+        $issue->fields = $resultArray['fields'] ?? [];
 
         return $issue;
     }

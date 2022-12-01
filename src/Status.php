@@ -4,62 +4,63 @@ namespace Technodelight\Jira\Domain;
 
 class Status
 {
-    private $statusCategoryColor;
-    private $statusCategory;
-    private $id;
-    private $name;
-    private $description;
+    private function __construct(
+        private readonly int $id,
+        private readonly string $name,
+        private readonly string $description,
+        private readonly string $statusCategory,
+        private readonly string $statusCategoryColor
+    ) {}
 
-    public static function fromArray(array $status)
+    public static function fromArray(array $status): Status
     {
-        $instance = new self;
-        $instance->description = $status['description'];
-        $instance->name = $status['name'];
-        $instance->id = $status['id'];
-        $instance->statusCategory = $status['statusCategory']['name'];
-        $instance->statusCategoryColor = $status['statusCategory']['colorName'];
-
-        return $instance;
+        return new self(
+            (int)$status['id'],
+            $status['name'],
+            $status['description'],
+            $status['statusCategory']['name'] ?? '',
+            $status['statusCategory']['colorName'] ?? ''
+        );
     }
 
-    public static function createEmpty()
+    public static function createEmpty(): Status
     {
-        $instance = new self;
-        $instance->description = '';
-        $instance->name = '';
-        $instance->id = '';
-        $instance->statusCategory = '';
-        $instance->statusCategoryColor = '';
-
-        return $instance;
+        return new self(
+            0,
+            '',
+            '',
+            '',
+            ''
+        );
     }
 
-    public function description()
+    public function id(): int
+    {
+        return $this->id;
+    }
+
+    public function name(): string
+    {
+        return $this->name;
+    }
+
+    public function description(): string
     {
         return $this->description;
     }
 
-    public function name()
-    {
-        return $this->name;
-    }
-    public function id()
-    {
-        return $this->id;
-    }
-    public function statusCategory()
+    public function statusCategory(): string
     {
         return $this->statusCategory;
     }
-    public function statusCategoryColor()
+
+    public function statusCategoryColor(): string
     {
         return $this->statusCategoryColor;
     }
+
     public function __toString()
     {
         return $this->name();
-    }
-    private function __construct()
-    {
     }
 }

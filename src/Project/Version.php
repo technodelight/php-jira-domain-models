@@ -2,52 +2,58 @@
 
 namespace Technodelight\Jira\Domain\Project;
 
+use DateTime;
+use Technodelight\Jira\Domain\DateTimeFactory;
+
 class Version
 {
-    private $id;
-    private $name;
-    private $isReleased;
-    private $releaseDate;
-    private $description;
-    private $isArchived;
+    private function __construct(
+        private readonly int $id,
+        private readonly string $name,
+        private readonly bool $isReleased,
+        private readonly string $releaseDate,
+        private readonly string $description,
+        private readonly bool $isArchived
+    ) {}
 
-    private function __construct()
+    public static function fromArray(array $version): Version
     {
+        return new self(
+            (int)($version['id'] ?? 0),
+            $version['name'],
+            (bool)$version['released'],
+            $version['releaseDate'] ?? null,
+            $version['description'] ?? '',
+            (bool)$version['archived']
+        );
     }
 
-    public static function fromArray(array $version)
-    {
-        $instance = new self;
-        $instance->name = $version['name'];
-        $instance->isReleased = $version['released'];
-        $instance->releaseDate = isset($version['releaseDate']) ? $version['releaseDate'] : null;
-        $instance->description = isset($version['description']) ? $version['description'] : '';
-        $instance->id = $version['id'];
-        $instance->isArchived = $version['archived'];
-        return $instance;
-    }
-
-    public function id()
+    public function id(): int
     {
         return $this->id;
     }
-    public function name()
+
+    public function name(): string
     {
         return $this->name;
     }
-    public function isReleased()
+
+    public function isReleased(): bool
     {
         return $this->isReleased;
     }
-    public function releaseDate()
+
+    public function releaseDate(): DateTime
     {
-        return new \DateTime($this->releaseDate);
+        return DateTimeFactory::fromString($this->releaseDate);
     }
-    public function description()
+
+    public function description(): string
     {
         return $this->description;
     }
-    public function isArchived()
+
+    public function isArchived(): bool
     {
         return $this->isArchived;
     }

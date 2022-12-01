@@ -2,120 +2,107 @@
 
 namespace Technodelight\Jira\Domain;
 
+use CallbackFilterIterator;
 use Countable;
 use DateTime;
 use Iterator;
+use Technodelight\Jira\Domain\Issue\IssueKey;
 
 class WorklogCollection implements Iterator, Countable
 {
-    private $maxResults = 0;
-    private $total = 0;
-    /**
-     * @var Worklog[]
-     */
-    private $worklogs = [];
+    private function __construct(
+        private array $worklogs,
+        private int $maxResults = 0,
+        private int $total = 0
+    ) {}
 
-    private function __construct()
+    public static function fromIssueArray(Issue $issue, array $worklogs): WorklogCollection
     {
+        return new self(
+            array_map(static fn(array $worklog) => Worklog::fromArray($worklog, $issue->issueKey()), $worklogs),
+            count($worklogs),
+            count($worklogs)
+        );
     }
 
-    public static function fromIssueArray(Issue $issue, array $worklogs)
+    public static function fromIterator(CallbackFilterIterator $iterator): WorklogCollection
     {
-        $collection = new self;
-        foreach ($worklogs as $log) {
-            $collection->worklogs[] = Worklog::fromIssueAndArray($issue, $log);
-        }
-        $collection->maxResults = count($collection->worklogs);
-        $collection->total = $collection->maxResults;
-        return $collection;
+        $worklogs = iterator_to_array($iterator);
+        return new self(
+            $worklogs,
+            count($worklogs),
+            count($worklogs)
+        );
     }
 
-    public static function fromIterator(\CallbackFilterIterator $iterator)
+    public static function createEmpty(): WorklogCollection
     {
-        $collection = new self;
-        $collection->worklogs = iterator_to_array($iterator);
-        $collection->maxResults = count($collection->worklogs);
-        $collection->total = $collection->maxResults;
-        return $collection;
+        return new self([]);
     }
 
-    public static function createEmpty()
-    {
-        return new self;
-    }
-
-    public function count()
+    public function count(): int
     {
         return count($this->worklogs);
     }
 
-    public function current()
+    public function current(): Worklog|false
     {
         return current($this->worklogs);
     }
 
-    public function next()
+    public function next(): void
     {
-        return next($this->worklogs);
+        next($this->worklogs);
     }
 
-    public function key()
+    public function key(): int
     {
         return key($this->worklogs);
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         reset($this->worklogs);
     }
 
-    public function valid()
+    public function valid(): bool
     {
         $item = current($this->worklogs);
         return $item !== false;
     }
 
-    public function push(Worklog $worklog)
+    public function push(Worklog $worklog): void
     {
         if (!in_array($worklog, $this->worklogs, true)) {
             $this->worklogs[] = $worklog;
-            $this->maxResults+= 1;
-            $this->total+= 1;
+            ++$this->maxResults;
+            ++$this->total;
         }
     }
 
-    public function merge(WorklogCollection $collection)
+    public function merge(WorklogCollection $collection): void
     {
         $this->worklogs = array_merge($this->worklogs, $collection->worklogs);
         $this->maxResults = count($this->worklogs);
         $this->total = count($this->worklogs);
     }
 
-    public function totalTimeSpentSeconds()
+    public function totalTimeSpentSeconds(): int
     {
-        $summary = 0;
-        foreach ($this->worklogs as $log) {
-            $summary+= $log->timeSpentSeconds();
-        }
-        return $summary;
+        return (int)array_sum(array_map(static fn(Worklog $worklog) => $worklog->timeSpentSeconds(), $this->worklogs));
     }
 
-    public function issueKeys()
+    public function issueKeys(): array
     {
-        return array_unique(array_map(
-            function(Worklog $worklog) {
-                return $worklog->issueKey();
-            },
-            $this->worklogs
-        ));
+        return array_unique(array_map(static fn(Worklog $worklog) => $worklog->issueKey(), $this->worklogs));
     }
 
-    public function issueCount()
+    public function issueCount(): int
     {
         return count($this->issueKeys());
     }
 
-    public function issues()
+    public function issues(): IssueCollection
     {
         $issues = IssueCollection::createEmpty();
         foreach ($this->worklogs as $worklog) {
@@ -124,9 +111,9 @@ class WorklogCollection implements Iterator, Countable
         return $issues;
     }
 
-    public function orderByCreatedDateDesc()
+    public function orderByCreatedDateDesc(): self
     {
-        uasort($this->worklogs, function (Worklog $a, Worklog $b) {
+        uasort($this->worklogs, static function (Worklog $a, Worklog $b) {
             if ($a->date() == $b->date()) {
                 return 0;
             }
@@ -136,42 +123,38 @@ class WorklogCollection implements Iterator, Countable
         return $this;
     }
 
-    public function filterByLimit($limit)
+    public function filterByLimit($limit): WorklogCollection
     {
         $count = 0;
-        $iterator = new \CallbackFilterIterator($this, function(Worklog $log) use ($limit, $count) {
-            $count++;
-            return $count <= $limit;
-        });
-        return WorklogCollection::fromIterator($iterator);
+        return self::fromIterator(
+            new CallbackFilterIterator($this, static function() use ($limit, $count) {
+                $count++;
+                return $count <= $limit;
+            })
+        );
     }
 
-    /**
-     * @param User $user
-     * @return WorklogCollection
-     */
-    public function filterByUser(User $user)
+    public function filterByUser(User $user): WorklogCollection
     {
-        $iterator = new \CallbackFilterIterator($this, function(Worklog $log) use ($user) {
-            return $log->author()->id() == $user->id();
-        });
-        return WorklogCollection::fromIterator($iterator);
+        return self::fromIterator(
+            new CallbackFilterIterator($this, static fn(Worklog $log) => $log->author()?->id() === $user->id())
+        );
     }
 
-    public function filterByDate(DateTime $from, DateTime $to)
+    public function filterByDate(DateTime $from, DateTime $to): WorklogCollection
     {
-        $iterator = new \CallbackFilterIterator($this, function(Worklog $log) use ($from, $to) {
-            $date = $log->date()->format('Y-m-d');
-            return $date >= $from->format('Y-m-d') && $date <= $to->format('Y-m-d');
-        });
-        return WorklogCollection::fromIterator($iterator);
+        return self::fromIterator(
+            new CallbackFilterIterator($this, static function(Worklog $log) use ($from, $to) {
+                return $log->date()->format('Y-m-d') >= $from->format('Y-m-d')
+                    && $log->date()->format('Y-m-d') <= $to->format('Y-m-d');
+            })
+        );
     }
 
-    public function filterByIssueKey($issueKey)
+    public function filterByIssueKey(IssueKey $issueKey): WorklogCollection
     {
-        $iterator = new \CallbackFilterIterator($this, function(Worklog $log) use ($issueKey) {
-            return $log->issueKey() == $issueKey;
-        });
-        return WorklogCollection::fromIterator($iterator);
+        return self::fromIterator(
+            new CallbackFilterIterator($this, static fn(Worklog $worklog) => $issueKey === $worklog->issueKey())
+        );
     }
 }

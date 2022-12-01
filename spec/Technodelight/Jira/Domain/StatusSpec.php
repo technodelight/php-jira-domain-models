@@ -25,10 +25,10 @@ class StatusSpec extends ObjectBehavior
     function it_is_initializable()
     {
         $this->beConstructedFromArray($this->status);
-        $this->description()->shouldReturn($this->status['description']);
-        $this->name()->shouldReturn($this->status['name']);
-        $this->id()->shouldReturn($this->status['id']);
-        $this->statusCategory()->shouldReturn($this->status['statusCategory']['name']);
-        $this->statusCategoryColor()->shouldReturn($this->status['statusCategory']['colorName']);
+        $this->id()->shouldReturn(10100);
+        $this->description()->shouldReturn('');
+        $this->name()->shouldReturn('Shortcut (open/close)');
+        $this->statusCategory()->shouldReturn('In Progress');
+        $this->statusCategoryColor()->shouldReturn('yellow');
     }
 }

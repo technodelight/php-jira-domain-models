@@ -1,20 +1,21 @@
 <?php
 
-namespace Technodelight\Jira\Domain\Worklog;
+namespace Technodelight\Jira\Domain;
 
 use Technodelight\Jira\Domain\Exception\NonNumericException;
 
-class WorklogId
+class NumericId
 {
-    private function __construct(private readonly int $id) {}
+    private function __construct(private readonly int $id)
+    {}
 
-    public static function fromNumeric(int|string $id): WorklogId
+    public static function fromNumeric(int|string $id): static
     {
         if (!is_numeric($id) && !empty($id)) {
             throw NonNumericException::fromString($id);
         }
 
-        return new self((int)trim($id));
+        return new static((int)trim($id));
     }
 
     public function id(): int

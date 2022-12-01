@@ -8,7 +8,7 @@ use Technodelight\Jira\Domain\User;
 
 class FilterSpec extends ObjectBehavior
 {
-    private $filter = [
+    private array $filter = [
         'viewUrl' => 'https://fixture.jira.phar/issues/?filter=12345/issues/?filter=12345',
         'favouritedCount' => 1,
         'subscriptions' => [
@@ -89,7 +89,7 @@ class FilterSpec extends ObjectBehavior
     {
         $this->beConstructedThrough('fromArray', [$this->filter]);
         $this->shouldHaveType('Technodelight\Jira\Domain\Filter');
-        $this->id()->shouldBeLike(FilterId::fromString($this->filter['id']));
+        $this->id()->shouldBeLike(FilterId::fromNumeric($this->filter['id']));
         $this->isFavourite()->shouldReturn(false);
         $this->jql()->shouldReturn($this->filter['jql']);
         $this->name()->shouldReturn($this->filter['name']);

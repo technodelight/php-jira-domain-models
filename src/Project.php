@@ -7,110 +7,79 @@ use Technodelight\Jira\Domain\Project\Version;
 
 class Project
 {
-    private $id;
-    private $key;
-    private $name;
-    private $projectTypeKey;
-    private $versions;
-    private $lead;
-    private $components;
-    private $issueTypes;
-    private $description;
+    private function __construct(
+        private readonly string|int $id,
+        private readonly string $key,
+        private readonly string $name,
+        private readonly string $description,
+        private readonly ?string $projectTypeKey,
+        private readonly array $versions,
+        private readonly ?array $lead,
+        private readonly array $components,
+        private readonly array $issueTypes
+    ) {}
 
-    private function __construct()
+    public static function fromArray(array $project): Project
     {
+        return new self(
+            $project['id'],
+            $project['key'],
+            $project['name'],
+            $project['description'] ?? '',
+            $project['projectTypeKey'] ?? null,
+            $project['versions'] ?? [],
+            $project['lead'] ?? null,
+            $project['components'] ?? [],
+            $project['issueTypes'] ?? []
+        );
     }
 
-    public static function fromArray(array $project)
+    public function id(): ProjectId
     {
-        $instance = new self;
-        $instance->id = ProjectId::fromString($project['id']);
-        $instance->key = $project['key'];
-        $instance->name = $project['name'];
-        $instance->projectTypeKey = isset($project['projectTypeKey']) ? $project['projectTypeKey'] : null;
-        $instance->versions = isset($project['versions']) ? $project['versions'] : [];
-        $instance->lead = isset($project['lead']) ? User::fromArray($project['lead']) : null;
-        $instance->components = isset($project['components']) ? $project['components'] : [];
-        $instance->issueTypes = isset($project['issueTypes']) ? $project['issueTypes'] : [];
-        $instance->description = isset($project['description']) ? $project['description'] : '';
-
-        return $instance;
+        return ProjectId::fromNumeric($this->id);
     }
 
-    /**
-     * @return int
-     */
-    public function id()
-    {
-        return $this->id;
-    }
-
-    /**
-     * @return string
-     */
-    public function key()
+    public function key(): string
     {
         return $this->key;
     }
 
-    /**
-     * @return string
-     */
-    public function name()
+    public function name(): string
     {
         return $this->name;
     }
 
-    /**
-     * @return string
-     */
-    public function projectTypeKey()
+    public function projectTypeKey(): string
     {
         return $this->projectTypeKey;
     }
 
-    /**
-     * @return Version[]
-     */
-    public function versions()
+    public function description(): string
     {
-        return array_map(
-            function (array $version) {
-                return Version::fromArray($version);
-            },
-            $this->versions
-        );
+        return $this->description;
     }
 
-    /**
-     * @return User
-     */
-    public function lead()
+    /** @return Version[] */
+    public function versions(): array
     {
-        return $this->lead;
+        return array_map(static fn (array $version) => Version::fromArray($version), $this->versions);
     }
 
-    /**
-     * @return array
-     */
-    public function components()
+    public function lead(): ?User
+    {
+        if ($this->lead) {
+            return User::fromArray($this->lead);
+        }
+        return null;
+    }
+
+    public function components(): array
     {
         return $this->components;
     }
 
-    /**
-     * @return array
-     */
-    public function issueTypes()
+    public function issueTypes(): array
     {
         return $this->issueTypes;
-    }
-
-    /**
-     * @return string
-     */
-    public function description()
-    {
-        return $this->description;
     }
 }

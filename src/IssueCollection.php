@@ -4,28 +4,26 @@ namespace Technodelight\Jira\Domain;
 
 use Iterator;
 use Countable;
+use RangeException;
 use Technodelight\Jira\Domain\Issue\IssueKey;
 
 class IssueCollection implements Iterator, Countable
 {
-    private $startAt, $maxResults, $total, $issues = [];
+    private array $issues = [];
 
-    public function __construct($startAt, $maxResults, $total, array $issues)
+    public function __construct(private readonly int $startAt, private int $total, array $issues)
     {
-        $this->startAt = $startAt;
-        $this->maxResults = $maxResults;
-        $this->total = $total;
         foreach ($issues as $issue) {
             $this->issues[] = Issue::fromArray($issue);
         }
     }
 
-    public static function createEmpty()
+    public static function createEmpty(): IssueCollection
     {
         return new self(0, 0, 0, []);
     }
 
-    public static function fromSearchArray(array $resultArray)
+    public static function fromSearchArray(array $resultArray): IssueCollection
     {
         return new self(
             $resultArray['startAt'],
@@ -35,71 +33,53 @@ class IssueCollection implements Iterator, Countable
         );
     }
 
-    public function count()
+    public function count(): int
     {
-        return count($this->issues);
+        return (int)count($this->issues);
     }
 
-    /**
-     * @return int
-     */
-    public function total()
+    public function total(): int
     {
         return $this->total;
     }
 
-    /**
-     * @return int
-     */
-    public function startAt()
+    public function startAt(): int
     {
         return $this->startAt;
     }
 
-    /**
-     * @return bool
-     */
-    public function isLast()
+    public function isLast(): bool
     {
         return ($this->startAt + 50) >= $this->total;
     }
 
-    /**
-     * @return Issue
-     */
-    public function current()
+    public function current(): Issue|false
     {
         return current($this->issues);
     }
 
-    /**
-     * @return Issue|false
-     */
-    public function next()
+    public function next(): void
     {
-        return next($this->issues);
+        next($this->issues);
     }
 
-    /**
-     * @return int|null
-     */
-    public function key()
+    public function key(): ?int
     {
         return key($this->issues);
     }
 
-    public function rewind()
+    public function rewind(): void
     {
         reset($this->issues);
     }
 
-    public function valid()
+    public function valid(): bool
     {
         $item = current($this->issues);
         return $item !== false;
     }
 
-    public function keys()
+    public function keys(): array
     {
         $keys = [];
         foreach ($this as $issue) {
@@ -108,64 +88,68 @@ class IssueCollection implements Iterator, Countable
         return $keys;
     }
 
-    public function merge(IssueCollection $collection)
+    public function merge(IssueCollection $collection): void
     {
         foreach ($collection as $issue) {
             $this->add($issue);
         }
     }
 
-    public function limit($limit)
+    public function limit(int $limit): void
     {
         $this->issues = array_splice($this->issues, 0, $limit);
     }
 
-    public function add(Issue $issue)
+    public function add(Issue $issue): void
     {
         if (!$this->findById($issue->id())) {
             $this->issues[] = $issue;
-            $this->total+= 1;
+            ++$this->total;
         }
     }
 
-    public function has($issueKey)
+    public function has($issueKey): bool
     {
         return $this->find($issueKey) instanceof Issue;
     }
 
-    public function sort(callable $callable)
+    public function sort(callable $callable): void
     {
         uasort($this->issues, $callable);
     }
 
-    public function find($issueKey)
+    public function find($issueKey): Issue
     {
         foreach ($this as $issue) {
-            if ((string) $issue->issueKey() == $issueKey) {
+            if ((string)$issue->issueKey() === $issueKey) {
                 return $issue;
             }
         }
 
-        throw new \RangeException(
+        throw new RangeException(
             sprintf('Cannot find issue by key: %s', $issueKey)
         );
     }
 
-    public function findById($id)
+    public function findById($id): Issue|null
     {
         foreach ($this as $issue) {
-            if ($issue->id() == $id) {
+            if ($issue->id() === $id) {
                 return $issue;
             }
         }
+
+        return null;
     }
 
-    public function findByIndex($index)
+    public function findByIndex(int $index): Issue|null
     {
         foreach ($this as $idx => $issue) {
             if ($idx === $index) {
                 return $issue;
             }
         }
+
+        return null;
     }
 }
