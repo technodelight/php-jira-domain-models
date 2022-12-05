@@ -62,16 +62,16 @@ class Item
     }
 
     /** Strings should be normalised as if wysiwyg was used on windows, the contents would be json encoded */
-    private function normalise(string $string): string
+    private function normalise(?string $string): string
     {
         // it can be json string as if wysiwyg was used on windows, the contents would be json encoded to preserve line endings
-        if (null !== ($array = json_decode($string, true, 512, JSON_THROW_ON_ERROR))) {
+        if (null !== $string && null !== ($array = json_decode($string, true, 512, JSON_THROW_ON_ERROR))) {
             $string = implode(PHP_EOL, $array);
         }
 
         // line endings
         return strtr(
-            $string,
+            $string ?? '',
             ["\r\n" => PHP_EOL]
         );
     }
