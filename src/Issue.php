@@ -221,7 +221,7 @@ class Issue
             $this->attachments = array_map(static fn(array $attachment) => Attachment::fromArray($attachment, $this), $attachments);
         }
 
-        return $this->attachments;
+        return $this->attachments ?? [];
     }
 
     public function comments(): array
@@ -230,7 +230,7 @@ class Issue
             $this->comments = array_map(static fn(array $comment) => Comment::fromArray($comment), $comments);
         }
 
-        return $this->comments;
+        return $this->comments ?? [];
     }
 
     public function links(): array
@@ -239,7 +239,7 @@ class Issue
             $this->links = array_map(static fn(array $link) => IssueLink::fromArray($link), $links);
         }
 
-        return $this->links;
+        return $this->links ?? [];
     }
 
     public function parent(): ?Issue
@@ -257,7 +257,7 @@ class Issue
             $this->subtasks = array_map(static fn (array $subtask) => self::fromArray($subtask), $subtasks);
         }
 
-        return $this->subtasks ?: [];
+        return $this->subtasks ?? [];
     }
 
     public function findField(string $fieldName): array|string|null
