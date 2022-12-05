@@ -134,7 +134,7 @@ class Issue
         return null;
     }
 
-    public function progress(): ?string
+    public function progress(): ?array
     {
         return $this->findField('progress');
     }
