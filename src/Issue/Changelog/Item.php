@@ -5,12 +5,12 @@ namespace Technodelight\Jira\Domain\Issue\Changelog;
 class Item
 {
     private function __construct(
-        private readonly string $from,
-        private readonly string $to,
-        private readonly string $fromString,
-        private readonly string $toString,
-        private readonly string $field,
-        private readonly string $fieldId
+        private readonly ?string $from,
+        private readonly ?string $to,
+        private readonly ?string $fromString,
+        private readonly ?string $toString,
+        private readonly ?string $field,
+        private readonly ?string $fieldId
     ) {}
 
     public static function fromArray(array $item): Item
@@ -65,8 +65,8 @@ class Item
     private function normalise(string $string): string
     {
         // it can be json string as if wysiwyg was used on windows, the contents would be json encoded to preserve line endings
-        if (null !== json_decode($string, true)) {
-            $string = implode(PHP_EOL, json_decode($string, true));
+        if (null !== ($array = json_decode($string, true, 512, JSON_THROW_ON_ERROR))) {
+            $string = implode(PHP_EOL, $array);
         }
 
         // line endings
