@@ -218,7 +218,7 @@ class Issue
     public function attachments(): array
     {
         if (!isset($this->attachments) && $attachments = $this->findField('attachment')) {
-            $this->attachments = array_map(static fn(array $attachment) => Attachment::fromArray($attachment, $this), $attachments);
+            $this->attachments = array_map(fn(array $attachment) => Attachment::fromArray($attachment, $this), $attachments);
         }
 
         return $this->attachments ?? [];
