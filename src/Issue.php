@@ -16,11 +16,11 @@ class Issue
     private ?array $subtasks = null;
     private ?WorklogCollection $worklogs;
     /** @var Comment[] */
-    private array $comments;
+    private ?array $comments = null;
     /** @var Attachment[] */
-    private array $attachments;
+    private ?array $attachments = null;
     /** @var IssueLink[] */
-    private array $links = [];
+    private ?array $links = null;
 
     public function id(): string
     {
