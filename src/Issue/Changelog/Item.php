@@ -2,6 +2,8 @@
 
 namespace Technodelight\Jira\Domain\Issue\Changelog;
 
+use JsonException;
+
 class Item
 {
     private function __construct(
@@ -66,10 +68,10 @@ class Item
     {
         try {
             // it can be json string as if wysiwyg was used on windows, the contents would be json encoded to preserve line endings
-            if (null !== $string && null !== ($array = json_decode($string, true, 512, JSON_THROW_ON_ERROR))) {
-                $string = implode(PHP_EOL, $array);
+            if (null !== $string && $this->mightBeJson($string)) {
+                $string = implode(PHP_EOL, json_decode($string, true, 512, JSON_THROW_ON_ERROR));
             }
-        } catch (\JsonException $e) {
+        } catch (JsonException $e) {
             $string = null;
         }
 
@@ -78,5 +80,11 @@ class Item
             $string ?? '',
             ["\r\n" => PHP_EOL]
         );
+    }
+
+    private function mightBeJson(string $string): bool
+    {
+        return str_starts_with($string, '{')
+            || str_starts_with($string, '[');
     }
 }
