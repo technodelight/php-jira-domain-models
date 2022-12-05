@@ -13,7 +13,7 @@ class Issue
     private string $key;
     private array $fields = [];
     private ?Issue $parent = null;
-    private array $subtasks;
+    private ?array $subtasks = null;
     private ?WorklogCollection $worklogs;
     /** @var Comment[] */
     private array $comments;
