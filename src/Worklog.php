@@ -46,7 +46,7 @@ class Worklog
             $record['comment'] ?? null,
             $record['started'],
             $record['timeSpentSeconds'],
-            $record['author']
+            $record['author'] ?? null
         );
     }
 
