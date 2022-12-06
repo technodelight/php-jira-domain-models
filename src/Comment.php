@@ -30,7 +30,7 @@ class Comment
 
     public function id(): CommentId
     {
-        return CommentId::fromString($this->id);
+        return CommentId::fromNumeric($this->id);
     }
 
     public function body(): string

@@ -25,7 +25,7 @@ class Priority
 
     public function id(): PriorityId
     {
-        return PriorityId::fromString($this->id);
+        return PriorityId::fromNumeric($this->id);
     }
 
     public function name(): string
