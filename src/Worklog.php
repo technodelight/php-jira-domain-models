@@ -105,7 +105,7 @@ class Worklog
         return null;
     }
 
-    public function comment(string $comment = null): self|string
+    public function comment(string $comment = null): self|string|null
     {
         if ($comment) {
             $this->comment = $comment;
