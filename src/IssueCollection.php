@@ -27,7 +27,6 @@ class IssueCollection implements Iterator, Countable
     {
         return new self(
             $resultArray['startAt'],
-            $resultArray['maxResults'],
             $resultArray['total'],
             $resultArray['issues']
         );
