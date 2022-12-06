@@ -10,8 +10,8 @@ use UnexpectedValueException;
 
 class Worklog
 {
-    private readonly ?int $issueId;
-    private readonly ?string $issueKey;
+    private ?int $issueId = null;
+    private ?string $issueKey = null;
     private ?Issue $issue = null;
     private DateTime $date;
 
@@ -70,7 +70,7 @@ class Worklog
     /** Can be one of: issueKey or issueId */
     public function issueIdentifier(): IssueKey|IssueId
     {
-        return $this->issueKey ?: $this->issueId;
+        return $this->issueKey ?? $this->issueId;
     }
 
     public function issue(): ?Issue
