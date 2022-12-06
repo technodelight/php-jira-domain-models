@@ -16,11 +16,16 @@ class Priority
     public static function fromArray(array $status): Priority
     {
         return new self(
-            $status['id'],
-            $status['name'],
+            $status['id'] ?? '',
+            $status['name'] ?? '',
             $status['description'] ?? '',
             $status['statusColor'] ?? ''
         );
+    }
+
+    public static function createEmpty(): Priority
+    {
+        return self::fromArray([]);
     }
 
     public function id(): PriorityId
