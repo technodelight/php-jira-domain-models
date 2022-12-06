@@ -20,7 +20,7 @@ class IssueCollection implements Iterator, Countable
 
     public static function createEmpty(): IssueCollection
     {
-        return new self(0, 0, 0, []);
+        return new self(0, 0, []);
     }
 
     public static function fromSearchArray(array $resultArray): IssueCollection
