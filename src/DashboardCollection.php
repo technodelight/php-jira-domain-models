@@ -69,7 +69,7 @@ class DashboardCollection implements Iterator, Countable
             $this->days = 0;
             $date = clone $this->from();
             while ($date->format(self::DATE_FORMAT) <= $this->to()->format(self::DATE_FORMAT)) {
-                if (in_array($date->format('N'), $this->workDays, true)) {
+                if (in_array((int)$date->format('N'), $this->workDays, true)) {
                     $this->days++;
                 }
                 $date->modify('+1 day');
@@ -87,7 +87,7 @@ class DashboardCollection implements Iterator, Countable
         $dates = [];
         $current = clone $this->from;
         while ($current <= $this->to) {
-            if ((in_array($current->format('N'), $this->workDays) && $onlyWorkDays) || $onlyWorkDays === false) {
+            if ($onlyWorkDays === false || (in_array((int)$current->format('N'), $this->workDays, true) && $onlyWorkDays)) {
                 $dates[] = clone $current;
             }
             $current->modify('+1 day');
@@ -145,7 +145,7 @@ class DashboardCollection implements Iterator, Countable
         $matchingLogs = WorklogCollection::createEmpty();
         foreach ($this->collection as $worklog) {
             /** @var $worklog Worklog */
-            if ($worklog->date()->format(self::DATE_FORMAT) == $findDate->format(self::DATE_FORMAT)) {
+            if ($worklog->date()->format(self::DATE_FORMAT) === $findDate->format(self::DATE_FORMAT)) {
                 $matchingLogs->push($worklog);
             }
         }
@@ -157,7 +157,7 @@ class DashboardCollection implements Iterator, Countable
         $matchingLogs = WorklogCollection::createEmpty();
         foreach ($this->collection as $worklog) {
             /** @var $worklog Worklog */
-            if ($worklog->date()->format(self::DATE_FORMAT) == $this->currentDate) {
+            if ($worklog->date()->format(self::DATE_FORMAT) === $this->currentDate) {
                 $matchingLogs->push($worklog);
             }
         }
