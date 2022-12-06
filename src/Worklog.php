@@ -18,7 +18,7 @@ class Worklog
     private function __construct(
         int|string|IssueId|IssueKey $issueKeyOrId,
         private readonly string $worklogId,
-        private string $comment,
+        private ?string $comment,
         string|DateTime $date,
         private int $timeSpentSeconds,
         private readonly ?array $author = null
