@@ -10,8 +10,8 @@ use UnexpectedValueException;
 
 class Worklog
 {
-    private readonly int $issueId;
-    private readonly string $issueKey;
+    private readonly ?int $issueId;
+    private readonly ?string $issueKey;
     private ?Issue $issue = null;
     private DateTime $date;
 
@@ -38,7 +38,7 @@ class Worklog
         }
     }
 
-    public static function fromArray(array $record, IssueKey $issueKey): Worklog
+    public static function fromArray(array $record, IssueId|IssueKey $issueKey): Worklog
     {
         return new self(
             $issueKey,
@@ -57,14 +57,14 @@ class Worklog
         return $worklog;
     }
 
-    public function issueKey(): IssueKey
+    public function issueKey(): ?IssueKey
     {
-        return IssueKey::fromString($this->issueKey);
+        return isset($this->issueKey) ? IssueKey::fromString($this->issueKey) : null;
     }
 
-    public function issueId(): IssueId
+    public function issueId(): ?IssueId
     {
-        return IssueId::fromNumeric($this->issueId);
+        return isset($this->issueId) ? IssueId::fromNumeric($this->issueId) : null;
     }
 
     /** Can be one of: issueKey or issueId */
