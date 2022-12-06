@@ -17,7 +17,7 @@ class Worklog
 
     private function __construct(
         int|string|IssueId|IssueKey $issueKeyOrId,
-        private readonly string $worklogId,
+        private readonly ?string $worklogId,
         private ?string $comment,
         string|DateTime $date,
         private int $timeSpentSeconds,
@@ -89,9 +89,9 @@ class Worklog
         $issue->worklogs()->push($this);
     }
 
-    public function id(): WorklogId
+    public function id(): ?WorklogId
     {
-        return WorklogId::fromNumeric($this->worklogId);
+        return isset($this->worklogId) ? WorklogId::fromNumeric($this->worklogId) : null;
     }
 
     public function author(): ?User
