@@ -125,7 +125,7 @@ class IssueCollection implements Iterator, Countable
         }
 
         foreach ($this as $issue) {
-            if ($issue->issueKey() == $issueKey) {
+            if ($issue->issueKey()->isSame($issueKey)) {
                 return $issue;
             }
         }
@@ -135,13 +135,14 @@ class IssueCollection implements Iterator, Countable
         );
     }
 
-    public function findById(IssueId|int $id): Issue|null
+    public function findById(int|IssueId $id): Issue|null
     {
         if (is_int($id)) {
             $id = IssueId::fromNumeric($id);
         }
+
         foreach ($this as $issue) {
-            if ($issue->id()) {
+            if ($issue->id()->isSame($id)) {
                 return $issue;
             }
         }
