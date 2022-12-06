@@ -31,6 +31,21 @@ class User
         );
     }
 
+    public function asArray(): array
+    {
+        return [
+            'accountId' => $this->id,
+            'key' => $this->key,
+            'name' => $this->name,
+            'displayName' => $this->displayName,
+            'emailAddress' => $this->emailAddress,
+            'avatarUrls' => $this->avatarUrls,
+            'active' => $this->active,
+            'timeZone' => $this->timeZone,
+            'locale' => $this->locale,
+        ];
+    }
+
     public function id(): string
     {
         return $this->id;

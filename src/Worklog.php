@@ -21,7 +21,7 @@ class Worklog
         private ?string $comment,
         string|DateTime $date,
         private int $timeSpentSeconds,
-        private readonly ?array $author = null
+        private array|User|null $author = null
     ) {
         if (is_numeric($issueKeyOrId)) {
             $this->issueId = (int)$issueKeyOrId;
@@ -35,6 +35,9 @@ class Worklog
         }
         if (is_string($date)) {
             $this->date = DateTimeFactory::fromString($date);
+        }
+        if ($author instanceof User) {
+            $this->author = $author->asArray();
         }
     }
 
