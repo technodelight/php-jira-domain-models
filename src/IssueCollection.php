@@ -5,6 +5,7 @@ namespace Technodelight\Jira\Domain;
 use Iterator;
 use Countable;
 use RangeException;
+use Technodelight\Jira\Domain\Issue\IssueId;
 use Technodelight\Jira\Domain\Issue\IssueKey;
 
 class IssueCollection implements Iterator, Countable
@@ -117,10 +118,14 @@ class IssueCollection implements Iterator, Countable
         uasort($this->issues, $callable);
     }
 
-    public function find($issueKey): Issue
+    public function find(string|IssueKey $issueKey): Issue
     {
+        if (is_string($issueKey)) {
+            $issueKey = IssueKey::fromString($issueKey);
+        }
+
         foreach ($this as $issue) {
-            if ((string)$issue->issueKey() === $issueKey) {
+            if ($issue->issueKey() == $issueKey) {
                 return $issue;
             }
         }
@@ -130,10 +135,13 @@ class IssueCollection implements Iterator, Countable
         );
     }
 
-    public function findById($id): Issue|null
+    public function findById(IssueId|int $id): Issue|null
     {
+        if (is_int($id)) {
+            $id = IssueId::fromNumeric($id);
+        }
         foreach ($this as $issue) {
-            if ($issue->id() === $id) {
+            if ($issue->id()) {
                 return $issue;
             }
         }

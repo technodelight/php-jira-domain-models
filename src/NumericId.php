@@ -23,6 +23,11 @@ class NumericId
         return $this->id;
     }
 
+    public function isSame(NumericId $numericId): bool
+    {
+        return $this->id === $numericId->id;
+    }
+
     public function __toString()
     {
         return (string)$this->id;

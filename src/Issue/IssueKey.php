@@ -43,6 +43,11 @@ class IssueKey
         return $this->sequenceNumber;
     }
 
+    public function isSame(IssueKey $issueKey): bool
+    {
+        return $this->issueKey === $issueKey->issueKey;
+    }
+
     public function __toString()
     {
         return (string) $this->issueKey;

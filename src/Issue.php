@@ -3,28 +3,39 @@
 namespace Technodelight\Jira\Domain;
 
 use DateTime;
+use Technodelight\Jira\Domain\Issue\IssueId;
 use Technodelight\Jira\Domain\Issue\IssueKey;
 use Technodelight\Jira\Domain\Issue\IssueType;
 
 class Issue
 {
-    private string $id;
-    private string $link;
-    private string $key;
-    private array $fields = [];
-    private ?Issue $parent = null;
-    private ?array $subtasks = null;
-    private ?WorklogCollection $worklogs;
-    /** @var Comment[] */
-    private ?array $comments = null;
-    /** @var Attachment[] */
-    private ?array $attachments = null;
-    /** @var IssueLink[] */
-    private ?array $links = null;
+    private function __construct(
+        private readonly string $id,
+        private readonly string $link,
+        private readonly string $key,
+        private readonly array $fields,
+        private ?WorklogCollection $worklogs = null,
+        private ?Issue $parent = null,
+        private ?array $subtasks = null,
+        private ?array $comments = null,
+        private ?array $attachments = null,
+        private ?array $links = null
+    ) {
+    }
 
-    public function id(): string
+    public static function fromArray(array $resultArray): Issue
     {
-        return $this->id;
+        return new self(
+            $resultArray['id'] ?? '',
+            $resultArray['self'] ?? '',
+            $resultArray['key'] ?? '',
+            $resultArray['fields'] ?? []
+        );
+    }
+
+    public function id(): IssueId
+    {
+        return IssueId::fromNumeric($this->id);
     }
 
     public function key(): IssueKey
@@ -263,20 +274,5 @@ class Issue
     public function findField(string $fieldName): array|string|null
     {
         return $this->fields[$fieldName] ?? null;
-    }
-
-    public static function fromArray(array $resultArray): Issue
-    {
-        $issue = new self;
-        $issue->id = $resultArray['id'];
-        $issue->link = $resultArray['self'];
-        $issue->key = $resultArray['key'];
-        $issue->fields = $resultArray['fields'] ?? [];
-
-        return $issue;
-    }
-
-    private function __construct()
-    {
     }
 }
