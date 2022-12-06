@@ -70,7 +70,7 @@ class Worklog
     /** Can be one of: issueKey or issueId */
     public function issueIdentifier(): IssueKey|IssueId
     {
-        return $this->issueKey ?? $this->issueId;
+        return null !== $this->issueKey ? IssueKey::fromString($this->issueKey) : IssueId::fromNumeric($this->issueId);
     }
 
     public function issue(): ?Issue
