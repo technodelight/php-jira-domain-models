@@ -7,6 +7,7 @@ use Technodelight\Jira\Domain\Issue\IssueId;
 use Technodelight\Jira\Domain\Issue\IssueKey;
 use Technodelight\Jira\Domain\Issue\IssueType;
 
+/** @method  */
 class Issue
 {
     private function __construct(
@@ -16,7 +17,7 @@ class Issue
         private readonly array $fields,
         private ?WorklogCollection $worklogs = null,
         private ?Issue $parent = null,
-        private ?array $subtasks = null,
+        private ?IssueCollection $subtasks = null,
         private ?array $comments = null,
         private ?array $attachments = null,
         private ?array $links = null
@@ -43,9 +44,10 @@ class Issue
         return IssueKey::fromString($this->key);
     }
 
-    public function ticketNumber(): IssueKey
+    /** @deprecated 2.26 use issueKey instead */
+    public function ticketNumber(): void
     {
-        return IssueKey::fromString($this->key);
+        throw new \BadMethodCallException(sprintf('calling %s is deprecated ', __METHOD__));
     }
 
     public function issueKey(): IssueKey
@@ -262,13 +264,16 @@ class Issue
         return $this->parent;
     }
 
-    public function subtasks(): array
+    public function subtasks(): IssueCollection
     {
         if (!isset($this->subtasks) && ($subtasks = $this->findField('subtasks'))) {
-            $this->subtasks = array_map(static fn (array $subtask) => self::fromArray($subtask), $subtasks);
+            $this->subtasks = IssueCollection::createEmpty();
+            foreach ($subtasks as $subtask) {
+                $this->subtasks->add(static::fromArray($subtask));
+            }
         }
 
-        return $this->subtasks ?? [];
+        return $this->subtasks;
     }
 
     public function findField(string $fieldName): array|string|null
