@@ -266,10 +266,13 @@ class Issue
 
     public function subtasks(): IssueCollection
     {
-        if (!isset($this->subtasks) && ($subtasks = $this->findField('subtasks'))) {
+        if (!isset($this->subtasks)) {
             $this->subtasks = IssueCollection::createEmpty();
-            foreach ($subtasks as $subtask) {
-                $this->subtasks->add(static::fromArray($subtask));
+
+            if ($subtasks = $this->findField('subtasks')) {
+                foreach ($subtasks as $subtask) {
+                    $this->subtasks->add(static::fromArray($subtask));
+                }
             }
         }
 
