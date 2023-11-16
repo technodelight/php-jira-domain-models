@@ -239,7 +239,7 @@ class Issue
 
     public function comments(): array
     {
-        if (!empty($comments = $this->fields['comment']['comments']) && !isset($this->comments)) {
+        if (!empty($comments = $this->fields['comment']['comments'] ?? []) && !isset($this->comments)) {
             $this->comments = array_map(static fn(array $comment) => Comment::fromArray($comment), $comments);
         }
 
