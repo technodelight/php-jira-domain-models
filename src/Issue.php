@@ -237,6 +237,7 @@ class Issue
         return $this->attachments ?? [];
     }
 
+    /** @return Comment[] */
     public function comments(): array
     {
         if (!empty($comments = $this->fields['comment']['comments'] ?? []) && !isset($this->comments)) {
@@ -246,6 +247,7 @@ class Issue
         return $this->comments ?? [];
     }
 
+    /** @return IssueLink[] */
     public function links(): array
     {
         if (!isset($this->links) && ($links = $this->findField('issuelinks'))) {
