@@ -14,8 +14,8 @@ class UserPickerResult
     public static function fromArray(array $result): UserPickerResult
     {
         return new self(
-            $result['key'],
-            $result['name'],
+            $result['accountId'],
+            $result['displayName'],
             $result['displayName'],
             $result['html'],
         );
